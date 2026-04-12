@@ -1,0 +1,317 @@
+import pygame, random
+import assets.AI.The_guy as The_guy
+import assets.SOUND.SFXManager as sfx
+
+pygame.init()
+pygame.mixer.init()
+pygame.font.init()
+
+clock = pygame.time.Clock()
+SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+
+animating = False
+anim_frame = 0
+anim_timer = 0
+anim_delay = 30
+hour = 0
+display_time = "10:00 PM"
+last_hour_time = pygame.time.get_ticks()
+last7 = pygame.mixer.Sound("assets/SOUND/last 7 sec.mp3")
+last7one = 0
+
+Win_img = pygame.image.load("assets/IMAGE/6AM.png").convert()
+Win_img = pygame.transform.scale(Win_img, (1920,1080)).convert()
+Win_sfx = pygame.mixer.Sound("assets/SOUND/6AM.mp3")
+
+EnemyMoveTimer = 0
+AttackTimer = 0
+Jumpscare = False
+jumpscareSFX = pygame.mixer.Sound("assets/SOUND/Jumpscare.mp3")
+
+enemies = {"The_guy": {"room": "E", "AI": 40}}
+running = True
+win = False
+
+SelectedCam = ""
+room_positions = {
+    "A": (955, 538),
+    "BH": (1420, 668),
+    "BR": (1328, 742),
+    "E": (1325, 460),
+    "C": (755, 880),
+    "DA": (957, 458),
+    "DB": (1017, 460),
+    "LH": (757, 680)
+}
+door_positions = {
+    "DA" : (706,485),
+    "E" : (1377,486),
+    "UH" : (1215,696)
+}
+ScanTimer = 0
+ScanDuration = 0
+ScanDurationMax = 200
+AudioLureTimer = 0
+DoorTimer = 0
+AudioLure_img = pygame.image.load("assets/IMAGE/plan of the hotel/AudioLure.png").convert_alpha()
+AudioLure_img = pygame.transform.scale(AudioLure_img,(88,54))
+AudioLure_sfx = pygame.mixer.Sound("assets/SOUND/AudioLure.mp3")
+LockedDoor = None
+audio_lure_button_rect = pygame.Rect(364, 323, 180, 88)
+
+cameraMove = 15
+CamON = False
+CamX = -250
+CamBackground = []
+for i in range(1, 47):  # np. 6 sekund * 30 fps
+    img = pygame.image.load(f"assets/VIDEO/camera_BACK_frames/frame_{i:04d}.png").convert()
+    CamBackground.append(img)
+CamBackground_frame = 0
+cam_room_cache = {}
+for room in ["You", "DA", "DB", "LH", "UH", "LoH", "A", "B", "C", "BR", "BH", "E"]:
+    img = pygame.image.load(f"assets/IMAGE/plan of the hotel/Cameras{room}.png")
+    cam_room_cache[room] = pygame.transform.scale(img, (1460,1080)).convert_alpha()
+OriginalCamPlan = cam_room_cache["You"]
+CamPlan = OriginalCamPlan
+
+room_img = pygame.image.load("assets/IMAGE/Room.png").convert()
+room_img = pygame.transform.scale(room_img, (2420,1080)).convert()
+accurate_room_img = room_img
+the_guy_room = pygame.image.load("assets/IMAGE/Room_THE_GUY.png").convert()
+the_guy_room = pygame.transform.scale(the_guy_room, (2420,1080)).convert()
+The_guy_jumpscare = pygame.image.load("assets/IMAGE/THE_GUY.png").convert_alpha()
+The_guy_jumpscare = pygame.transform.scale(The_guy_jumpscare, (1920,1080)).convert_alpha()
+Blood = pygame.image.load("assets/IMAGE/Blood.png").convert()
+Blood = pygame.transform.scale(Blood, (1920,1080)).convert() 
+
+gameMusic = pygame.mixer.Sound("assets/MUSIC/Game1.mp3")
+gameMusic.play(-1)  
+font = pygame.font.SysFont("Arial", 36)
+monitor_imgs = []
+for i in range(1, 6):
+    img = pygame.image.load(f"assets/IMAGE/camera/monitor{i}.png").convert_alpha()
+    img = pygame.transform.scale(img, (2060,1080))
+    monitor_imgs.append(img)
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s and not animating:
+                sfx.CameraPullUp()
+                animating = True
+                anim_frame = 0
+                anim_timer = 0
+                turning_on = not CamON
+
+# Scan button & Audio Lure button
+
+        if event.type == pygame.MOUSEBUTTONDOWN and CamON:
+            mouse_pos = pygame.mouse.get_pos()
+            # if 364 <= mouse_pos[0] <= 544 and 323 <= mouse_pos[0] <= 411 and AudioLureTimer == 0:
+
+            if audio_lure_button_rect.collidepoint(mouse_pos) and AudioLureTimer == 0 and SelectedCam != "":
+                AudioLureTimer = 200
+                AudioLure_sfx.play()
+                roomToMove = The_guy.AudioLure(enemies["The_guy"]['room'], enemies["The_guy"]['AI'], SelectedCam, LockedDoor)
+                enemies["The_guy"]["room"] = roomToMove
+            if 365 <= mouse_pos[0] <= 545 and 443 <= mouse_pos[1] <= 531 and ScanTimer == 0:
+                pygame.mixer.Sound("assets/SOUND/scan.mp3").play()
+                ScanDuration = ScanDurationMax
+                ScanTimer = 900
+            if AudioLureTimer == 0:
+                if 735 <= mouse_pos[0] <= 775 and 850 <= mouse_pos[1] <= 910 and SelectedCam != "C":
+                    SelectedCam = "C"
+                if 737 <= mouse_pos[0] <= 777 and 650 <= mouse_pos[1] <= 710 and SelectedCam != "LH":
+                    SelectedCam = "LH"
+                if 1400 <= mouse_pos[0] <= 1440 and 640 <= mouse_pos[1] <= 700 and SelectedCam != "BH":
+                    SelectedCam = "BH"
+                if 1310 <= mouse_pos[0] <= 1350 and 710 <= mouse_pos[1] <= 770 and SelectedCam != "BR":
+                    SelectedCam = "BR"
+                if 1305 <= mouse_pos[0] <= 1345 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "E":
+                    SelectedCam = "E"
+                if 995 <= mouse_pos[0] <= 1035 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "DB":
+                    SelectedCam = "DB"
+                if 937 <= mouse_pos[0] <= 977 and 428 <= mouse_pos[1] <= 488 and SelectedCam != "DA":
+                    SelectedCam = "DA"
+                if 935 <= mouse_pos[0] <= 975 and 505 <= mouse_pos[1] <= 565 and SelectedCam != "A":
+                    SelectedCam = "A"
+# Door locking
+            if DoorTimer == 0:
+                if door_positions["DA"][0] <= mouse_pos[0] <= door_positions["DA"][0]+60 and door_positions["DA"][1] <= mouse_pos[1] <= door_positions["DA"][1]+22:
+                    if LockedDoor == "DA":
+                        LockedDoor = None
+                    else:
+                        LockedDoor = "DA"
+                elif door_positions["E"][0] <= mouse_pos[0] <= door_positions["E"][0]+60 and door_positions["E"][1] <= mouse_pos[1] <= door_positions["E"][1]+22:
+                    if LockedDoor == "E":
+                        LockedDoor = None
+                    else:
+                        LockedDoor = "E"
+                elif door_positions["UH"][0] <= mouse_pos[0] <= door_positions["UH"][0]+60 and door_positions["UH"][1] <= mouse_pos[1] <= door_positions["UH"][1]+22:
+                    if LockedDoor == "UH":
+                        LockedDoor = None
+                    else:
+                        LockedDoor = "UH"
+                else:
+                    continue
+                sfx.MetalDoor("close")
+                DoorTimer = 200
+    if ScanDuration > 0:
+        if ScanDuration % 60 < 30:
+            CamPlan = cam_room_cache.get(enemies["The_guy"]['room'], OriginalCamPlan)
+        else:
+            CamPlan = OriginalCamPlan
+        ScanDuration -= 1
+        
+    if ScanDuration == 0:
+        CamPlan = OriginalCamPlan
+        
+              
+# Exit button         
+                    
+    key = pygame.key.get_pressed()
+    if key[pygame.K_ESCAPE]:
+        win = False
+        running = False
+
+# Enemy movement
+    EnemyMoveTimer += 1
+    if EnemyMoveTimer >= 300:
+        EnemyMoveTimer = 0
+        for enemy in enemies:
+            current_room = enemies[enemy]["room"]
+            AI = enemies[enemy]["AI"]
+            new_room = The_guy.move(current_room, AI, LockedDoor)
+            enemies[enemy]["room"] = new_room
+    if enemies["The_guy"]["room"] == "You" and AttackTimer < 600:
+        AttackTimer += 1
+    if AttackTimer >= 600:
+        if CamON:
+            animating = True
+            anim_frame = 0
+            anim_timer = 0
+            turning_on = not CamON
+            Jumpscare = True
+            CamON = False
+
+    if enemies["The_guy"]["room"] == "You" and CamON:
+        room_img = the_guy_room
+    if enemies["The_guy"]["room"] != "You" and room_img == the_guy_room:
+        room_img = accurate_room_img
+
+
+# Time and hour system
+
+    current_time = pygame.time.get_ticks()
+    if (current_time - last_hour_time) // 1000 >= 45:
+        hour += 1
+        last_hour_time = current_time
+    if hour in (0,1,2):
+        display_time = f"{10+hour}:00 PM"
+    else:
+        display_time = f"{hour-2}:00 AM"
+    if hour >= 8:
+        win = True
+        running = False
+    if hour == 7 and (current_time - last_hour_time) // 1000 == 37 and last7one == 0:
+        last7.play()
+        last7one += 1
+
+# Camera movement
+    if not CamON and not animating:
+        if key[pygame.K_a]:
+            CamX += cameraMove
+            if CamX > 0:
+                CamX = 0
+            if CamX < -500:
+                CamX = -500
+        if key[pygame.K_d]:
+            CamX -= cameraMove
+            if CamX < -500:
+                CamX = -500
+            if CamX > 0:
+                CamX = 0
+    if animating:
+        anim_timer += clock.get_time()
+        if anim_timer >= anim_delay:
+            anim_frame += 1
+            anim_timer = 0
+        if anim_frame >= 5:
+            animating = False
+            anim_frame = 4 
+            CamON = turning_on
+    if animating:
+        if turning_on:
+            SCREEN.blit(monitor_imgs[anim_frame], (-40, 0))
+        else:
+            SCREEN.blit(room_img, (CamX, 0))
+            SCREEN.blit(monitor_imgs[4 - anim_frame], (-40, 0))
+    elif CamON:
+    
+        SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
+        CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
+
+# Audio Lure
+        if LockedDoor in door_positions:
+            pos = door_positions[LockedDoor]
+            pygame.draw.rect(SCREEN, (255,255,255), (pos[0],pos[1],59,22))
+        SCREEN.blit(CamPlan, (250, 50))
+        if SelectedCam in room_positions:
+            pos = (room_positions[SelectedCam][0]-44,room_positions[SelectedCam][1]-29)
+            if AudioLureTimer > 0 and AudioLureTimer % 10 < 5:
+                SCREEN.blit(AudioLure_img, pos)
+            pos = room_positions[SelectedCam]
+            pygame.draw.circle(SCREEN,(100,100,100), pos, 10)
+
+        if ScanTimer > 0:
+                for i in range((ScanTimer//150) + 1):
+                    pygame.draw.rect(SCREEN, (100, 100, 100), (355 + i*36 + i/3, 543, 18, 18))
+        TIME = pygame.font.Font.render(font, display_time, True, (255, 255, 255))
+        SCREEN.blit(TIME, (80, 75))
+        pygame.display.update()
+    else:
+        SCREEN.blit(room_img, (CamX, 0))
+    pygame.display.update()
+
+# Jumpscare
+
+    if Jumpscare and not animating:
+        SCREEN.blit(accurate_room_img, (CamX, 0))
+        SCREEN.blit(The_guy_jumpscare, (0, 0))
+        pygame.mixer.stop()
+        jumpscareSFX.play()
+        pygame.display.update()
+        pygame.time.wait(2300)
+        pygame.mixer.stop()
+        SCREEN.blit(Blood, (0, 0))
+        pygame.display.update()
+        pygame.time.wait(2000)
+        win = False
+        running = False
+
+# SFX
+    dt = clock.tick(60) 
+    if dt > 100:
+        print("Lag spike:", dt, "ms")
+    sfx.SFX(CamON, dt)
+
+    ScanTimer -= 1
+    AudioLureTimer -=1
+    DoorTimer -=1
+    if AudioLureTimer < 0:
+        AudioLureTimer = 0
+    if ScanTimer < 0:
+        ScanTimer = 0
+    if DoorTimer < 0:
+        DoorTimer = 0
+    
+if win:
+    SCREEN.blit(Win_img, (0, 0))
+    pygame.mixer.stop()
+    Win_sfx.play()
+    pygame.display.update()
+    pygame.time.wait(7000)
+pygame.quit()
