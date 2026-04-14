@@ -21,8 +21,9 @@ def move(room, AI,LockedDoor,nightmare = False):
                 return choice
         elif room == "DA":
             choice = random.choice(["DB", "LH"])
-            if LockedDoor == "DA" and choice == "LH":
-                return room
+            if LockedDoor == "DA":
+                if choice == "LH" :
+                    return "DB" if nightmare else room
             else:
                 return choice
         elif room == "DB":
@@ -32,13 +33,13 @@ def move(room, AI,LockedDoor,nightmare = False):
         elif room == "UH":
             choice = random.choice(["LoH", "DB", "B"])
             if LockedDoor == "UH":
-                if choice == "LoH":
+                if choice == "LoH" and not nightmare:
                     sfx.MetalDoor("bang")
                     return room
                 if nightmare:
                     return "DB"
             else:
-                return choice
+                return choice if not nightmare else "LoH"
         elif room == "LoH":
             return random.choice(["You", "UH" if not nightmare else "You", "BR"])
         elif room == "A":
