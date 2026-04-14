@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['FNS'],
+    ['FNS.py'],
     pathex=[],
     binaries=[],
     datas=[],

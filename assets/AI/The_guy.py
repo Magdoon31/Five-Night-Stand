@@ -8,15 +8,15 @@ ALUsed = 0
 AudioLureConnections = {"E" : ["BH","DB","UH"], "DB": ["E","UH","DA"], "DA":["DB","LH","A"], "LH": ["DA","A","C"], "C": ["LH"], "BR":["UH", "LoH", "BH"], "BH": ["E","BR"], "A": ["DA","LH"]
 }
 
-def move(room, AI,LockedDoor):
+def move(room, AI,LockedDoor,nightmare = False):
     rnd = random.randint(1, 100)
-    if AI > 80:
+    if AI > 80 and not nightmare:
         AI = 80
     if rnd <= AI:
         if room == "E":
             choice = random.choice(["DB", "BH"])
             if LockedDoor == "E" and choice == "BH":
-                return room
+                return room if not nightmare else "DB"
             else:
                 return choice
         elif room == "DA":
@@ -28,17 +28,19 @@ def move(room, AI,LockedDoor):
         elif room == "DB":
             return random.choice(["DA", "UH", "E"])
         elif room == "LH":
-            return random.choice(["You", "C", "A"])
+            return random.choice(["You", "C", "A" if not nightmare else "You"])
         elif room == "UH":
-
             choice = random.choice(["LoH", "DB", "B"])
-            if LockedDoor == "UH" and choice == "LoH":
-                sfx.MetalDoor("bang")
-                return room
+            if LockedDoor == "UH":
+                if choice == "LoH":
+                    sfx.MetalDoor("bang")
+                    return room
+                if nightmare:
+                    return "DB"
             else:
                 return choice
         elif room == "LoH":
-            return random.choice(["You", "UH", "BR"])
+            return random.choice(["You", "UH" if not nightmare else "You", "BR"])
         elif room == "A":
             return "LH"
         elif room == "C":
@@ -52,7 +54,10 @@ def move(room, AI,LockedDoor):
                 sfx.Steps("right")
             return choice
         elif room == "BH":
-            return random.choice(["E", "BR"])
+            if not nightmare:
+                return random.choice(["E", "BR"])
+            else:
+                return "BR"
         else:
             return room
     else:
