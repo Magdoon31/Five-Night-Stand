@@ -139,6 +139,16 @@ dark_img = pygame.transform.scale(dark_img, (270,74)).convert_alpha()
 radar = False
 nightmare = False
 dark_mode = False
+tutorial_step = 0
+tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
+tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
+tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abondend hotel.\nYour goal is to survive until 6 AM while avoiding enemies.\n    (disclamer: this game doesn't have 5 nights, it's just a name...)",
+                  "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not allways.",
+                  "On the camera view you can click on the rooms(diamonds)\nto select them and then use the audio lure to lure The guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
+                  "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self explanatory, it scans the whole place",
+                  "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
+tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
+
 
 while menu:
     for event in pygame.event.get():
@@ -147,7 +157,7 @@ while menu:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
-            if not extra:
+            if not extra and tutorial_step == 0:
                 if 800 <= mouse_pos[0] <= 1120 and 800 <= mouse_pos[1] <= 920:
                     menu = False
                 if 300 <= mouse_pos[0] <= 520 and 100 <= mouse_pos[1] <= 180:
@@ -172,6 +182,13 @@ while menu:
                     enemies["Face"]["AI"] -= 5
                     if enemies["Face"]["AI"] < 0:
                         enemies["Face"]["AI"] = 0
+                if 1300 <= mouse_pos[0] <= 1580 and 100 <= mouse_pos[1] <= 180:
+                    tutorial_step += 1
+            elif tutorial_step > 0 and tutorial_step < 5:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    tutorial_step += 1
+            elif tutorial_step == 5:
+                tutorial_step = 0
             else:
                 if 300 <= mouse_pos[0] <= 520 and 100 <= mouse_pos[1] <= 180:
                     extra = False
@@ -186,9 +203,10 @@ while menu:
                     dark_mode = not dark_mode
     SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
     CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
-    if not extra:
+    if not extra and tutorial_step == 0:
         SCREEN.blit(extra_img,(300,100))
         SCREEN.blit(start_img,(800,800))
+        SCREEN.blit(tutorial_btn,(1300,100))
         SCREEN.blit(The_guy_AI,(300,250))
         SCREEN.blit(face_AI,(1100,250))
         SCREEN.blit(arrow_up,(710,250))
@@ -197,6 +215,33 @@ while menu:
         SCREEN.blit(arrow_down,(1510,450))
         SCREEN.blit(pygame.font.Font.render(font,str(enemies["The_guy"]["AI"]),True,(255,255,255)),(480,704))
         SCREEN.blit(pygame.font.Font.render(font,str(enemies["Face"]["AI"]),True,(255,255,255)),(1280,704))
+    elif tutorial_step == 1:
+        SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[0],True,(255,255,255)),(100,300))
+    elif tutorial_step == 2:
+        SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[1],True,(255,255,255)),(100,300))
+        SCREEN.blit(pygame.transform.scale(room_img,(605,270)),(1000,600))
+    elif tutorial_step == 3:
+        SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[2],True,(255,255,255)),(100,200))
+        SCREEN.blit(pygame.transform.scale(CamPlan,(1095,810)),(500,300))
+        pygame.draw.circle(SCREEN,(255,255,255),(500+807,300+310), 40,3)
+        pygame.draw.line(SCREEN,(255,40,40),(500+807+12,300+310-4),(500+807+75,300+310-20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(500+807+12,300+310-4),(500+807+20,300+310-20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(500+807+12,300+310-4),(500+807+26,300+310+10),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,550),(590-70,550+20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,550),(590-20,550+20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,550),(590-27,550-10),3)
+    elif tutorial_step == 4:
+        SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[3],True,(255,255,255)),(100,300))
+        SCREEN.blit(pygame.transform.scale(CamPlan,(1095,810)),(500,300))
+        pygame.draw.circle(SCREEN,(255,255,255),(560+805,330+304), 40,3)
+        pygame.draw.line(SCREEN,(255,40,40),(570+807+12,330+310-4),(570+807+75,330+310-20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(570+807+12,330+310-4),(570+807+20,330+310-20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(570+807+12,330+310-4),(570+807+26,330+310+10),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,630),(590-70,630+20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,630),(590-20,630+20),3)
+        pygame.draw.line(SCREEN,(255,40,40),(590,630),(590-27,630-10),3)
+    elif tutorial_step == 5:
+        SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[4],True,(255,255,255)),(100,300))
     else:
         SCREEN.blit(back_img,(300,100))
         pygame.draw.rect(SCREEN, (255,255,255),(600,400,30,30), 0 if nightmare else 2)

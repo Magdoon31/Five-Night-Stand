@@ -9,6 +9,7 @@ AudioLureConnections = {"E" : ["BH","DB","UH"], "DB": ["E","UH","DA"], "DA":["DB
 }
 
 def move(room, AI,LockedDoor,nightmare = False):
+    print(room)
     rnd = random.randint(1, 100)
     if AI > 80 and not nightmare:
         AI = 80
