@@ -21,9 +21,8 @@ def move(room, AI,LockedDoor,nightmare = False):
                 return choice
         elif room == "DA":
             choice = random.choice(["DB", "LH"])
-            if LockedDoor == "DA":
-                if choice == "LH" :
-                    return "DB" if nightmare else room
+            if LockedDoor == "DA" and choice == "LH":
+                return "DB" if nightmare else room
             else:
                 return choice
         elif room == "DB":
@@ -33,11 +32,13 @@ def move(room, AI,LockedDoor,nightmare = False):
         elif room == "UH":
             choice = random.choice(["LoH", "DB", "B"])
             if LockedDoor == "UH":
+                if nightmare:
+                    return "DB"
                 if choice == "LoH" and not nightmare:
                     sfx.MetalDoor("bang")
                     return room
-                if nightmare:
-                    return "DB"
+                else:
+                    return choice
             else:
                 return choice if not nightmare else "LoH"
         elif room == "LoH":
@@ -63,8 +64,7 @@ def move(room, AI,LockedDoor,nightmare = False):
             return room
     else:
         return room
-    if room == None:
-        return "DB"
+    
 
 def AudioLure(room, AI, AudioLureRoom, LockedDoor):
     global ALUsed
