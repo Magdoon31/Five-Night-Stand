@@ -152,10 +152,10 @@ dark_mode = False
 tutorial_step = 0
 tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
 tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
-tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abondend hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
-                  "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not allways.",
+tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abandoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
+                  "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
                   "On the camera view you can click on the rooms(diamonds)\nto select them and then use the audio lure to lure The guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
-                  "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self explanatory, it scans the whole place",
+                  "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self-explanatory, it scans the whole place",
                   "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
 tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
 
@@ -213,6 +213,7 @@ while game_on:
                 if not extra and tutorial_step == 0:
                     if 800 <= mouse_pos[0] <= 1120 and 800 <= mouse_pos[1] <= 920:
                         menu = False
+                        running = True
                     if 300 <= mouse_pos[0] <= 520 and 100 <= mouse_pos[1] <= 180:
                         extra = True
                     if 730 <= mouse_pos[0] <= 850 and 250 <= mouse_pos[1] <= 450:
