@@ -9,158 +9,156 @@ pygame.font.init()
 
 clock = pygame.time.Clock()
 SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-
-enemies = {"The_guy": {"room": "E", "AI": 40}, "Face" : {"room": "You", "AI":40, "alpha" : 0}}
-
-animating = False
-anim_frame = 0
-anim_timer = 0
-anim_delay = 30
-hour = 0
-display_time = "10:00 PM"
-last_hour_time = pygame.time.get_ticks()
-last7 = pygame.mixer.Sound("assets/SOUND/last 7 sec.mp3")
-last7one = 0
-
-Win_img = pygame.image.load("assets/IMAGE/6AM.png").convert()
-Win_img = pygame.transform.scale(Win_img, (1920,1080)).convert()
-Win_sfx = pygame.mixer.Sound("assets/SOUND/6AM.mp3")
-
-EnemyMoveTimer = 0
-AttackTimer = 0
-Jumpscare = False
-jumpscareSFX = pygame.mixer.Sound("assets/SOUND/Jumpscare.mp3")
-
-
-face_room_img = pygame.image.load("assets/IMAGE/Face_room.png").convert_alpha()
-face_jumpscare = pygame.image.load("assets/IMAGE/Face.png").convert_alpha()
-face_jumpscare = pygame.transform.scale(face_jumpscare,(1320,1080))
-running = True
 game_on = True
-win = False
-
-
-flashlight_img = pygame.image.load("assets/IMAGE/flashlight.png").convert_alpha()
-flashlight_img = pygame.transform.scale(flashlight_img, (1000,1000))
-flashlight_toogle = False
-
-
-SelectedCam = ""
-room_positions = {
-    "A": (955, 538),
-    "BH": (1420, 668),
-    "BR": (1328, 742),
-    "E": (1325, 460),
-    "C": (755, 880),
-    "DA": (957, 458),
-    "DB": (1017, 460),
-    "LH": (757, 680)
-}
-door_positions = {
-    "DA" : (706,485),
-    "E" : (1377,486),
-    "UH" : (1215,696)
-}
-ScanTimer = 0
-ScanDuration = 0
-ScanDurationMax = 200
-AudioLureTimer = 0
-DoorTimer = 0
-AudioLure_img = pygame.image.load("assets/IMAGE/plan of the hotel/AudioLure.png").convert_alpha()
-AudioLure_img = pygame.transform.scale(AudioLure_img,(88,54))
-AudioLure_sfx = pygame.mixer.Sound("assets/SOUND/AudioLure.mp3")
-LockedDoor = None
-audio_lure_button_rect = pygame.Rect(364, 323, 180, 88)
-
-cameraMove = 15
-CamON = False
-CamX = -250
-CamBackground = []
-for i in range(1, 47):  # np. 6 sekund * 30 fps
-    img = pygame.image.load(f"assets/VIDEO/camera_BACK_frames/frame_{i:04d}.png").convert()
-    CamBackground.append(img)
-CamBackground_frame = 0
-cam_room_cache = {}
-for room in ["You", "DA", "DB", "LH", "UH", "LoH", "A", "B", "C", "BR", "BH", "E"]:
-    img = pygame.image.load(f"assets/IMAGE/plan of the hotel/Cameras{room}.png")
-    cam_room_cache[room] = pygame.transform.scale(img, (1460,1080)).convert_alpha()
-OriginalCamPlan = cam_room_cache["You"]
-CamPlan = OriginalCamPlan
-
-room_img = pygame.image.load("assets/IMAGE/Room.png").convert()
-room_img = pygame.transform.scale(room_img, (2420,1080)).convert()
-accurate_room_img = room_img
-the_guy_room = pygame.image.load("assets/IMAGE/Room_THE_GUY.png").convert()
-the_guy_room = pygame.transform.scale(the_guy_room, (2420,1080)).convert()
-The_guy_jumpscare = pygame.image.load("assets/IMAGE/THE_GUY.png").convert_alpha()
-The_guy_jumpscare = pygame.transform.scale(The_guy_jumpscare, (1920,1080)).convert_alpha()
-Blood = pygame.image.load("assets/IMAGE/Blood.png").convert()
-Blood = pygame.transform.scale(Blood, (1920,1080)).convert() 
-
-
-font = pygame.font.Font("assets/FONTS/witchwoode/Witchwoode-Regular.otf", 52)
-monitor_imgs = []
-for i in range(1, 6):
-    img = pygame.image.load(f"assets/IMAGE/camera/monitor{i}.png").convert_alpha()
-    img = pygame.transform.scale(img, (2060,1080))
-    monitor_imgs.append(img)
-menu = True
-
-try:
-    print("kupa")
-    with open("lib/text/progres/game.txt", "r+") as progress:
-        progress_data = progress.read().splitlines()
-        if progress_data == []:
-            progress.write(f"Night\n1\n")
-            progress.write("Extras\nFalse\n")
-            progress.write("Nightmare\nFalse")
-except FileNotFoundError:
-    print("dupa")
-    with open("lib/text/progres/game.txt", "w+") as progress:
-        progress_data = progress.read().splitlines()
-        if progress_data == []:
-            progress.write(f"Night\n1\n")
-            progress.write("Extras\nFalse\n")
-            progress.write("Nightmare\nFalse")
-
-
-start_img = pygame.image.load("assets/IMAGE/Start.png").convert_alpha()
-start_img = pygame.transform.scale(start_img, (320,120))
-The_guy_AI = pygame.image.load("assets/IMAGE/The_guy_AI.jpg").convert()
-The_guy_AI = pygame.transform.scale(The_guy_AI, (400,400))
-arrow_up = pygame.image.load("assets/IMAGE/arrow-up.png").convert_alpha()
-arrow_down = pygame.image.load("assets/IMAGE/arrow-down.png").convert_alpha()
-face_AI = pygame.image.load("assets/IMAGE/Face_AI.png").convert()
-face_AI = pygame.transform.scale(face_AI, (400,400))
-click = pygame.mixer.Sound("assets/SOUND/click.mp3")
-extra = False
-extra_img = pygame.image.load("assets/IMAGE/extras.png").convert_alpha()
-extra_img = pygame.transform.scale(extra_img, (220,80)).convert_alpha()
-back_img = pygame.image.load("assets/IMAGE/back.png").convert_alpha()
-back_img = pygame.transform.scale(back_img, (220,80)).convert_alpha()
-nightmare_img = pygame.image.load("assets/IMAGE/text/nightmare.png").convert_alpha()
-nightmare_img = pygame.transform.scale(nightmare_img, (250,82)).convert_alpha()
-radar_img = pygame.image.load("assets/IMAGE/text/radar.png").convert_alpha()
-radar_img = pygame.transform.scale(radar_img, (230,70)).convert_alpha()
-dark_img = pygame.image.load("assets/IMAGE/text/Dark.png").convert_alpha()
-dark_img = pygame.transform.scale(dark_img, (270,74)).convert_alpha()
-progress_star = pygame.image.load("assets/IMAGE/progress_star.png").convert_alpha()
-progress_star = pygame.transform.scale(progress_star, (100,100)).convert_alpha()
-radar = False
-nightmare = False
-dark_mode = False
-tutorial_step = 0
-tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
-tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
-tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abandoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
-                  "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
-                  "On the camera view you can click on the rooms(diamonds)\nto select them and then use the audio lure to lure The guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
-                  "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self-explanatory, it scans the whole place",
-                  "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
-tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
-
-
 while game_on:
+    enemies = {"The_guy": {"room": "E", "AI": 40}, "Face" : {"room": "You", "AI":40, "alpha" : 0}}
+
+    animating = False
+    anim_frame = 0
+    anim_timer = 0
+    anim_delay = 30
+    hour = 0
+    display_time = "10:00 PM"
+    last_hour_time = pygame.time.get_ticks()
+    last7 = pygame.mixer.Sound("assets/SOUND/last 7 sec.mp3")
+    last7one = 0
+
+    Win_img = pygame.image.load("assets/IMAGE/6AM.png").convert()
+    Win_img = pygame.transform.scale(Win_img, (1920,1080)).convert()
+    Win_sfx = pygame.mixer.Sound("assets/SOUND/6AM.mp3")
+
+    EnemyMoveTimer = 0
+    AttackTimer = 0
+    Jumpscare = False
+    jumpscareSFX = pygame.mixer.Sound("assets/SOUND/Jumpscare.mp3")
+
+
+    face_room_img = pygame.image.load("assets/IMAGE/Face_room.png").convert_alpha()
+    face_jumpscare = pygame.image.load("assets/IMAGE/Face.png").convert_alpha()
+    face_jumpscare = pygame.transform.scale(face_jumpscare,(1320,1080))
+    running = True
+    win = False
+
+
+    flashlight_img = pygame.image.load("assets/IMAGE/flashlight.png").convert_alpha()
+    flashlight_img = pygame.transform.scale(flashlight_img, (1000,1000))
+    flashlight_toogle = False
+
+
+    SelectedCam = ""
+    room_positions = {
+        "A": (955, 538),
+        "BH": (1420, 668),
+        "BR": (1328, 742),
+        "E": (1325, 460),
+        "C": (755, 880),
+        "DA": (957, 458),
+        "DB": (1017, 460),
+        "LH": (757, 680)
+    }
+    door_positions = {
+        "DA" : (706,485),
+        "E" : (1377,486),
+        "UH" : (1215,696)
+    }
+    ScanTimer = 0
+    ScanDuration = 0
+    ScanDurationMax = 200
+    AudioLureTimer = 0
+    DoorTimer = 0
+    AudioLure_img = pygame.image.load("assets/IMAGE/plan of the hotel/AudioLure.png").convert_alpha()
+    AudioLure_img = pygame.transform.scale(AudioLure_img,(88,54))
+    AudioLure_sfx = pygame.mixer.Sound("assets/SOUND/AudioLure.mp3")
+    LockedDoor = None
+    audio_lure_button_rect = pygame.Rect(364, 323, 180, 88)
+
+    cameraMove = 15
+    CamON = False
+    CamX = -250
+    CamBackground = []
+    for i in range(1, 47):  # np. 6 sekund * 30 fps
+        img = pygame.image.load(f"assets/VIDEO/camera_BACK_frames/frame_{i:04d}.png").convert()
+        CamBackground.append(img)
+    CamBackground_frame = 0
+    cam_room_cache = {}
+    for room in ["You", "DA", "DB", "LH", "UH", "LoH", "A", "B", "C", "BR", "BH", "E"]:
+        img = pygame.image.load(f"assets/IMAGE/plan of the hotel/Cameras{room}.png")
+        cam_room_cache[room] = pygame.transform.scale(img, (1460,1080)).convert_alpha()
+    OriginalCamPlan = cam_room_cache["You"]
+    CamPlan = OriginalCamPlan
+
+    room_img = pygame.image.load("assets/IMAGE/Room.png").convert()
+    room_img = pygame.transform.scale(room_img, (2420,1080)).convert()
+    accurate_room_img = room_img
+    the_guy_room = pygame.image.load("assets/IMAGE/Room_THE_GUY.png").convert()
+    the_guy_room = pygame.transform.scale(the_guy_room, (2420,1080)).convert()
+    The_guy_jumpscare = pygame.image.load("assets/IMAGE/THE_GUY.png").convert_alpha()
+    The_guy_jumpscare = pygame.transform.scale(The_guy_jumpscare, (1920,1080)).convert_alpha()
+    Blood = pygame.image.load("assets/IMAGE/Blood.png").convert()
+    Blood = pygame.transform.scale(Blood, (1920,1080)).convert() 
+
+
+    font = pygame.font.Font("assets/FONTS/witchwoode/Witchwoode-Regular.otf", 52)
+    monitor_imgs = []
+    for i in range(1, 6):
+        img = pygame.image.load(f"assets/IMAGE/camera/monitor{i}.png").convert_alpha()
+        img = pygame.transform.scale(img, (2060,1080))
+        monitor_imgs.append(img)
+    menu = True
+
+    try:
+        with open("lib/text/progres/game.txt", "r+") as progress:
+            progress_data = progress.read().splitlines()
+            if progress_data == []:
+                progress.write(f"Night\n1\n")
+                progress.write("Extras\nFalse\n")
+                progress.write("Nightmare\nFalse")
+    except FileNotFoundError:
+        with open("lib/text/progres/game.txt", "w+") as progress:
+            progress_data = progress.read().splitlines()
+            if progress_data == []:
+                progress.write(f"Night\n1\n")
+                progress.write("Extras\nFalse\n")
+                progress.write("Nightmare\nFalse")
+
+
+    start_img = pygame.image.load("assets/IMAGE/Start.png").convert_alpha()
+    start_img = pygame.transform.scale(start_img, (320,120))
+    The_guy_AI = pygame.image.load("assets/IMAGE/The_guy_AI.jpg").convert()
+    The_guy_AI = pygame.transform.scale(The_guy_AI, (400,400))
+    arrow_up = pygame.image.load("assets/IMAGE/arrow-up.png").convert_alpha()
+    arrow_down = pygame.image.load("assets/IMAGE/arrow-down.png").convert_alpha()
+    face_AI = pygame.image.load("assets/IMAGE/Face_AI.png").convert()
+    face_AI = pygame.transform.scale(face_AI, (400,400))
+    click = pygame.mixer.Sound("assets/SOUND/click.mp3")
+    extra = False
+    extra_img = pygame.image.load("assets/IMAGE/extras.png").convert_alpha()
+    extra_img = pygame.transform.scale(extra_img, (220,80)).convert_alpha()
+    back_img = pygame.image.load("assets/IMAGE/back.png").convert_alpha()
+    back_img = pygame.transform.scale(back_img, (220,80)).convert_alpha()
+    nightmare_img = pygame.image.load("assets/IMAGE/text/nightmare.png").convert_alpha()
+    nightmare_img = pygame.transform.scale(nightmare_img, (250,82)).convert_alpha()
+    radar_img = pygame.image.load("assets/IMAGE/text/radar.png").convert_alpha()
+    radar_img = pygame.transform.scale(radar_img, (230,70)).convert_alpha()
+    dark_img = pygame.image.load("assets/IMAGE/text/Dark.png").convert_alpha()
+    dark_img = pygame.transform.scale(dark_img, (270,74)).convert_alpha()
+    progress_star = pygame.image.load("assets/IMAGE/progress_star.png").convert_alpha()
+    progress_star = pygame.transform.scale(progress_star, (100,100)).convert_alpha()
+    radar = False
+    nightmare = False
+    dark_mode = False
+    tutorial_step = 0
+    tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
+    tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
+    tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abandoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
+                    "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
+                    "On the camera view you can click on the rooms(diamonds)\nto select them and then use the audio lure to lure The guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
+                    "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self-explanatory, it scans the whole place",
+                    "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
+    tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
+
+
+
     stars = 0
     with open("lib/text/progres/game.txt", "r+") as progress:
         progress_data = progress.read().splitlines()
@@ -252,7 +250,7 @@ while game_on:
                         if nightmare:
                             enemies["The_guy"]["AI"] = 100
                             enemies["Face"]["AI"] = 100
-                    if 600 <= mouse_pos[0] <= 890 and 550 <= mouse_pos[1] <= 605:
+                    if 600 <= mouse_pos[0] <= 890 and 550 <= mouse_pos[1] <= 605 and not nightmare:
                         click.play()
                         radar = not radar
                     if 600 <= mouse_pos[0] <= 890 and 700 <= mouse_pos[1] <= 750:
@@ -312,10 +310,11 @@ while game_on:
             SCREEN.blit(back_img,(300,100))
             pygame.draw.rect(SCREEN, (255,255,255),(600,400,30,30), 0 if nightmare else 2)
             SCREEN.blit(nightmare_img,(640,380))
-            pygame.draw.rect(SCREEN, (255,255,255),(600,550,30,30), 0 if radar else 2)
-            SCREEN.blit(radar_img,(640,536))
+            if not nightmare:
+                pygame.draw.rect(SCREEN, (255,255,255),(600,550,30,30), 0 if radar else 2)
+                SCREEN.blit(radar_img,(640,536))
             pygame.draw.rect(SCREEN, (255,255,255),(600,700,30,30), 0 if dark_mode else 2)
-            SCREEN.blit(dark_img,(640,686))
+            SCREEN.blit(dark_img,(640,676))
         pygame.display.update()
         dt = clock.tick(30) 
         if dt > 100:
@@ -469,6 +468,7 @@ while game_on:
         if hour >= 8:
             win = True
             running = False
+            hour = 0
         if hour == 7 and (current_time - last_hour_time) // 1000 == 37 and last7one == 0:
             last7.play()
             last7one += 1
@@ -547,6 +547,7 @@ while game_on:
                 SCREEN.blit(face_jumpscare,(300,0))
             else:
                 SCREEN.blit(The_guy_jumpscare, (0, 0))
+            Jumpscare = False
             pygame.mixer.stop()
             jumpscareSFX.play()
             pygame.display.update()
@@ -592,9 +593,10 @@ while game_on:
         pygame.display.update()
         pygame.time.wait(7000)
         with open("lib/text/progres/game.txt", "w") as progress:
-            if night <5:
-                night += 1
-            progress.write(f"Night\n{night}\n")
+            if night != 5:
+                progress.write(f"Night\n{night+1}\n")
+            else:
+                progress.write(f"Night\n{night}\n")
             if night == 5 and extras_unlocked == "False":
                 progress.write("Extras\nTrue\n")
             else:
@@ -603,10 +605,12 @@ while game_on:
                 progress.write("Nightmare\nTrue")
             else:
                 progress.write(f"Nightmare\n{nightmare_beaten}")
+            
         menu = True
     if game_on:
         SCREEN.fill((0,0,0))
         pygame.display.update()
         pygame.time.wait(2000)
+        running = True
             
 pygame.quit()
