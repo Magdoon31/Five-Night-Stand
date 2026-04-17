@@ -107,21 +107,21 @@ for i in range(1, 6):
 menu = True
 
 try:
+    print("kupa")
     with open("lib/text/progres/game.txt", "r+") as progress:
         progress_data = progress.read().splitlines()
         if progress_data == []:
-            print("kupa")
             progress.write(f"Night\n1\n")
             progress.write("Extras\nFalse\n")
-            progress.write("Nightmare\nFalse\n")
+            progress.write("Nightmare\nFalse")
 except FileNotFoundError:
+    print("dupa")
     with open("lib/text/progres/game.txt", "w+") as progress:
         progress_data = progress.read().splitlines()
         if progress_data == []:
-            print("kupa")
             progress.write(f"Night\n1\n")
             progress.write("Extras\nFalse\n")
-            progress.write("Nightmare\nFalse\n")
+            progress.write("Nightmare\nFalse")
 
 
 start_img = pygame.image.load("assets/IMAGE/Start.png").convert_alpha()
@@ -164,6 +164,7 @@ while game_on:
     stars = 0
     with open("lib/text/progres/game.txt", "r+") as progress:
         progress_data = progress.read().splitlines()
+        print(progress_data)
         night = int(progress_data[1])
         extras_unlocked = progress_data[3]
         nightmare_beaten = progress_data[5]
@@ -598,9 +599,9 @@ while game_on:
             else:
                 progress.write(f"Extras\n{extras_unlocked}\n")
             if extras_unlocked == "True" and nightmare == True and nightmare_beaten == "False":
-                progress.write("Nightmare\nTrue\n")
+                progress.write("Nightmare\nTrue")
             else:
-                progress.write(f"Nightmare\n{nightmare_beaten}\n")
+                progress.write(f"Nightmare\n{nightmare_beaten}")
         menu = True
     if game_on:
         SCREEN.fill((0,0,0))
