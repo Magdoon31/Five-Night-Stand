@@ -2,6 +2,7 @@ import pygame, random
 import assets.AI.The_guy as The_guy
 import assets.SOUND.SFXManager as sfx
 
+
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
@@ -9,13 +10,7 @@ pygame.font.init()
 clock = pygame.time.Clock()
 SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-
-
-# Enemies difficulty [AI]
-
 enemies = {"The_guy": {"room": "E", "AI": 40}, "Face" : {"room": "You", "AI":40, "alpha" : 0}}
-
-
 
 animating = False
 anim_frame = 0
@@ -35,8 +30,6 @@ EnemyMoveTimer = 0
 AttackTimer = 0
 Jumpscare = False
 jumpscareSFX = pygame.mixer.Sound("assets/SOUND/Jumpscare.mp3")
-
-
 
 
 face_room_img = pygame.image.load("assets/IMAGE/Face_room.png").convert_alpha()
@@ -102,6 +95,7 @@ The_guy_jumpscare = pygame.image.load("assets/IMAGE/THE_GUY.png").convert_alpha(
 The_guy_jumpscare = pygame.transform.scale(The_guy_jumpscare, (1920,1080)).convert_alpha()
 Blood = pygame.image.load("assets/IMAGE/Blood.png").convert()
 Blood = pygame.transform.scale(Blood, (1920,1080)).convert() 
+stars = 0
 
 
 font = pygame.font.Font("assets/FONTS/witchwoode/Witchwoode-Regular.otf", 52)
@@ -112,6 +106,42 @@ for i in range(1, 6):
     monitor_imgs.append(img)
 menu = True
 
+with open("lib/text/progres/game.txt", "r+") as progress:
+    progress_data = progress.read().splitlines()
+    if progress_data == []:
+        print("kupa")
+        progress.write(f"Night\n1\n")
+        progress.write("Extras\nFalse\n")
+        progress.write("Nightmare\nFalse\n")
+
+with open("lib/text/progres/game.txt", "r+") as progress:
+    progress_data = progress.read().splitlines()
+    night = int(progress_data[1])
+    extras_unlocked = progress_data[3]
+    nightmare_beaten = progress_data[5]
+if night > 5:
+    night = 5
+if extras_unlocked == "True":
+    stars +=1
+if nightmare_beaten == "True":
+    stars +=1
+
+
+if night == 1:
+    enemies["The_guy"]["AI"] = 20
+    enemies["Face"]["AI"] = 5
+elif night == 2:
+    enemies["The_guy"]["AI"] = 30
+    enemies["Face"]["AI"] = 20
+elif night == 3:
+    enemies["The_guy"]["AI"] = 40
+    enemies["Face"]["AI"] = 40
+elif night == 4:
+    enemies["The_guy"]["AI"] = 60
+    enemies["Face"]["AI"] = 70
+elif night == 5:
+    enemies["The_guy"]["AI"] = 80
+    enemies["Face"]["AI"] = 90
 # Menu loop
 
 menuMusic = pygame.mixer.Sound("assets/MUSIC/menu1.mp3")
@@ -136,6 +166,8 @@ radar_img = pygame.image.load("assets/IMAGE/text/radar.png").convert_alpha()
 radar_img = pygame.transform.scale(radar_img, (230,70)).convert_alpha()
 dark_img = pygame.image.load("assets/IMAGE/text/Dark.png").convert_alpha()
 dark_img = pygame.transform.scale(dark_img, (270,74)).convert_alpha()
+progress_star = pygame.image.load("assets/IMAGE/progress_star.png").convert_alpha()
+progress_star = pygame.transform.scale(progress_star, (100,100)).convert_alpha()
 radar = False
 nightmare = False
 dark_mode = False
@@ -195,6 +227,9 @@ while menu:
                 if 600 <= mouse_pos[0] <= 890 and 385 <= mouse_pos[1] <= 440:
                     click.play()
                     nightmare = not nightmare
+                    if nightmare:
+                        enemies["The_guy"]["AI"] = 100
+                        enemies["Face"]["AI"] = 100
                 if 600 <= mouse_pos[0] <= 890 and 550 <= mouse_pos[1] <= 605:
                     click.play()
                     radar = not radar
@@ -203,18 +238,25 @@ while menu:
                     dark_mode = not dark_mode
     SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
     CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
-    if not extra and tutorial_step == 0:
+    if not extra and tutorial_step == 0 and extras_unlocked == "True":
+        for i in range(stars):
+            SCREEN.blit(progress_star,(0 + i*100, 980))
         SCREEN.blit(extra_img,(300,100))
         SCREEN.blit(start_img,(800,800))
         SCREEN.blit(tutorial_btn,(1300,100))
         SCREEN.blit(The_guy_AI,(300,250))
         SCREEN.blit(face_AI,(1100,250))
-        SCREEN.blit(arrow_up,(710,250))
-        SCREEN.blit(arrow_down,(710,450))
-        SCREEN.blit(arrow_up,(1510,250))
-        SCREEN.blit(arrow_down,(1510,450))
+        if not nightmare:
+            SCREEN.blit(arrow_up,(710,250))
+            SCREEN.blit(arrow_down,(710,450))
+            SCREEN.blit(arrow_up,(1510,250))
+            SCREEN.blit(arrow_down,(1510,450))
         SCREEN.blit(pygame.font.Font.render(font,str(enemies["The_guy"]["AI"]),True,(255,255,255)),(480,704))
         SCREEN.blit(pygame.font.Font.render(font,str(enemies["Face"]["AI"]),True,(255,255,255)),(1280,704))
+    elif tutorial_step == 0 and not extra:
+        SCREEN.blit(pygame.font.Font.render(font,f"Night {night}",True,(255,255,255)),(890,730))
+        SCREEN.blit(start_img,(800,800))
+        SCREEN.blit(tutorial_btn,(1300,100))
     elif tutorial_step == 1:
         SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[0],True,(255,255,255)),(100,300))
     elif tutorial_step == 2:
@@ -242,7 +284,9 @@ while menu:
         pygame.draw.line(SCREEN,(255,40,40),(590,630),(590-27,630-10),3)
     elif tutorial_step == 5:
         SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[4],True,(255,255,255)),(100,300))
-    else:
+    elif extra:
+        for i in range(stars):
+            SCREEN.blit(progress_star,(0 + i*100, 980))
         SCREEN.blit(back_img,(300,100))
         pygame.draw.rect(SCREEN, (255,255,255),(600,400,30,30), 0 if nightmare else 2)
         SCREEN.blit(nightmare_img,(640,380))
@@ -258,6 +302,12 @@ while menu:
 pygame.mixer.stop()
 gameMusic = pygame.mixer.Sound("assets/MUSIC/Game1.mp3")
 gameMusic.play(-1)  
+
+progress.close()
+
+if enemies["The_guy"]["AI"] == 0:
+    enemies["The_guy"]["room"] = None
+
 #Game loop
 
 while running:
@@ -516,4 +566,16 @@ if win:
     Win_sfx.play()
     pygame.display.update()
     pygame.time.wait(7000)
+    with open("lib/text/progres/game.txt", "w") as progress:
+        if int(progress[1]) <5:
+            night += 1
+        progress.write(f"Night\n{night}\n")
+        if night == 5 and extras_unlocked == "False":
+            progress.write("Extras\nTrue\n")
+        else:
+            progress.write(f"Extras\n{extras_unlocked}\n")
+        if extras_unlocked == "True" and nightmare == True and nightmare_beaten == "False":
+            progress.write("Nightmare\nTrue\n")
+        else:
+            progress.write(f"Nightmare\n{nightmare_beaten}\n")
 pygame.quit()
