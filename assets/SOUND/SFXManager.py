@@ -32,7 +32,8 @@ def SFX(CamON, dt):
 def MetalDoor(type):
     pygame.mixer.Sound(f"assets/SOUND/metal_door_{type}.mp3").play()
 def CameraPullUp():
-    pygame.mixer.Sound("assets/SOUND/camera pullout.mp3").play()
+    channel = pygame.mixer.Channel(1)
+    channel.play(pygame.mixer.Sound("assets/SOUND/camera pullout.mp3"))
 def Steps(type):
     pygame.mixer.Sound(f"assets/SOUND/steps_{type}.mp3").play()
 def flashlight(flashlight_toogle):

@@ -1,7 +1,7 @@
 import pygame, random
 import assets.AI.The_guy as The_guy
 import assets.SOUND.SFXManager as sfx
-
+import lib.locust as locust
 
 pygame.init()
 pygame.mixer.init()
@@ -9,10 +9,33 @@ pygame.font.init()
 
 clock = pygame.time.Clock()
 SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-game_on = True
-while game_on:
-    enemies = {"The_guy": {"room": "E", "AI": 40}, "Face" : {"room": "You", "AI":40, "alpha" : 0}}
 
+game_on = True
+flashlight_tutorial_imgs = []
+flash_frame = 0
+monitor_imgs = []
+error_channel = pygame.mixer.Channel(2)
+
+
+
+
+
+for i in range(1,204):
+    img = pygame.image.load(f"assets/VIDEO/flashlight/image{i}.png").convert()
+    img = pygame.transform.scale(img,(480,270)).convert()
+    flashlight_tutorial_imgs.append(img)
+
+CamBackground = []
+for i in range(1, 47):
+        img = pygame.image.load(f"assets/VIDEO/camera_BACK_frames/frame_{i:04d}.png").convert()
+        CamBackground.append(img)
+for i in range(1, 6):
+        img = pygame.image.load(f"assets/IMAGE/camera/monitor{i}.png").convert_alpha()
+        img = pygame.transform.scale(img, (2060,1080))
+        monitor_imgs.append(img)
+
+while game_on:
+    enemies = {"The_guy": {"room": "E", "AI": 40}, "Face" : {"room": "You", "AI":40, "alpha" : 0}, "locust" : {"room":"DB", "AI":0}}
     animating = False
     anim_frame = 0
     anim_timer = 0
@@ -75,10 +98,7 @@ while game_on:
     cameraMove = 15
     CamON = False
     CamX = -250
-    CamBackground = []
-    for i in range(1, 47):  # np. 6 sekund * 30 fps
-        img = pygame.image.load(f"assets/VIDEO/camera_BACK_frames/frame_{i:04d}.png").convert()
-        CamBackground.append(img)
+    
     CamBackground_frame = 0
     cam_room_cache = {}
     for room in ["You", "DA", "DB", "LH", "UH", "LoH", "A", "B", "C", "BR", "BH", "E"]:
@@ -96,31 +116,30 @@ while game_on:
     The_guy_jumpscare = pygame.transform.scale(The_guy_jumpscare, (1920,1080)).convert_alpha()
     Blood = pygame.image.load("assets/IMAGE/Blood.png").convert()
     Blood = pygame.transform.scale(Blood, (1920,1080)).convert() 
+    locust_camera = pygame.image.load("assets/IMAGE/locust_cameras.png").convert_alpha()
+    locust_camera = pygame.transform.scale(locust_camera,(1100,1100)).convert_alpha()
+    room_locust = pygame.transform.scale(pygame.image.load("assets/IMAGE/locust_room.png"),(350,700)).convert_alpha()
 
 
     font = pygame.font.Font("assets/FONTS/witchwoode/Witchwoode-Regular.otf", 52)
-    monitor_imgs = []
-    for i in range(1, 6):
-        img = pygame.image.load(f"assets/IMAGE/camera/monitor{i}.png").convert_alpha()
-        img = pygame.transform.scale(img, (2060,1080))
-        monitor_imgs.append(img)
     menu = True
 
     try:
         with open("lib/text/progres/game.txt", "r+") as progress:
             progress_data = progress.read().splitlines()
             if progress_data == []:
-                progress.write(f"Night\n1\n")
+                progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
-                progress.write("Nightmare\nFalse")
+                progress.write("Nightmare\nFalse\n")
+                progress.write("deaf_mode:\nFalse")
     except FileNotFoundError:
         with open("lib/text/progres/game.txt", "w+") as progress:
             progress_data = progress.read().splitlines()
             if progress_data == []:
-                progress.write(f"Night\n1\n")
+                progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
-                progress.write("Nightmare\nFalse")
-
+                progress.write("Nightmare\nFalse\n")
+                progress.write("deaf_mode:\nFalse")
 
     start_img = pygame.image.load("assets/IMAGE/Start.png").convert_alpha()
     start_img = pygame.transform.scale(start_img, (320,120))
@@ -144,16 +163,18 @@ while game_on:
     dark_img = pygame.transform.scale(dark_img, (270,74)).convert_alpha()
     progress_star = pygame.image.load("assets/IMAGE/progress_star.png").convert_alpha()
     progress_star = pygame.transform.scale(progress_star, (100,100)).convert_alpha()
+    error = pygame.mixer.Sound("assets/SOUND/Error.mp3")
+    
     radar = False
     nightmare = False
     dark_mode = False
     tutorial_step = 0
     tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
     tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
-    tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abandoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
+    tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abaNdoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
                     "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
-                    "On the camera view you can click on the rooms(diamonds)\nto select them and then use the audio lure to lure The guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
-                    "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Scan button... it's self-explanatory, it scans the whole place",
+                    "On the camera view you can click on the rooms (diamonds)\nto select them and then use the audio lure to lure The Guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
+                    "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Sca button... it's self-explanatory, it scans the whole place",
                     "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
     tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
 
@@ -162,15 +183,17 @@ while game_on:
     stars = 0
     with open("lib/text/progres/game.txt", "r+") as progress:
         progress_data = progress.read().splitlines()
-        print(progress_data)
         night = int(progress_data[1])
         extras_unlocked = progress_data[3]
         nightmare_beaten = progress_data[5]
+        deaf_mode = progress_data[7]
     if night > 5:
         night = 5
     if extras_unlocked == "True":
         stars +=1
     if nightmare_beaten == "True":
+        stars +=1
+    if deaf_mode == "True":
         stars +=1
 
 
@@ -214,26 +237,27 @@ while game_on:
                         running = True
                     if 300 <= mouse_pos[0] <= 520 and 100 <= mouse_pos[1] <= 180:
                         extra = True
-                    if 730 <= mouse_pos[0] <= 850 and 250 <= mouse_pos[1] <= 450:
-                        click.play()
-                        enemies["The_guy"]["AI"] += 5
-                        if enemies["The_guy"]["AI"] > 100:
-                            enemies["The_guy"]["AI"] = 100
-                    if 730 <= mouse_pos[0] <= 850 and 465 <= mouse_pos[1] <= 650:
-                        click.play()
-                        enemies["The_guy"]["AI"] -= 5
-                        if enemies["The_guy"]["AI"] < 0:
-                            enemies["The_guy"]["AI"] = 0
-                    if 1530 <= mouse_pos[0] <= 1650 and 250 <= mouse_pos[1] <= 450:
-                        click.play()
-                        enemies["Face"]["AI"] += 5
-                        if enemies["Face"]["AI"] > 100:
-                            enemies["Face"]["AI"] = 100
-                    if 1530 <= mouse_pos[0] <= 1650 and 465 <= mouse_pos[1] <= 650:
-                        click.play()
-                        enemies["Face"]["AI"] -= 5
-                        if enemies["Face"]["AI"] < 0:
-                            enemies["Face"]["AI"] = 0
+                    if not nightmare:
+                        if 730 <= mouse_pos[0] <= 850 and 250 <= mouse_pos[1] <= 450:
+                            click.play()
+                            enemies["The_guy"]["AI"] += 5
+                            if enemies["The_guy"]["AI"] > 100:
+                                enemies["The_guy"]["AI"] = 100
+                        if 730 <= mouse_pos[0] <= 850 and 465 <= mouse_pos[1] <= 650:
+                            click.play()
+                            enemies["The_guy"]["AI"] -= 5
+                            if enemies["The_guy"]["AI"] < 0:
+                                enemies["The_guy"]["AI"] = 0
+                        if 1530 <= mouse_pos[0] <= 1650 and 250 <= mouse_pos[1] <= 450:
+                            click.play()
+                            enemies["Face"]["AI"] += 5
+                            if enemies["Face"]["AI"] > 100:
+                                enemies["Face"]["AI"] = 100
+                        if 1530 <= mouse_pos[0] <= 1650 and 465 <= mouse_pos[1] <= 650:
+                            click.play()
+                            enemies["Face"]["AI"] -= 5
+                            if enemies["Face"]["AI"] < 0:
+                                enemies["Face"]["AI"] = 0
                     if 1300 <= mouse_pos[0] <= 1580 and 100 <= mouse_pos[1] <= 180:
                         tutorial_step += 1
                 elif tutorial_step > 0 and tutorial_step < 5:
@@ -247,6 +271,7 @@ while game_on:
                     if 600 <= mouse_pos[0] <= 890 and 385 <= mouse_pos[1] <= 440:
                         click.play()
                         nightmare = not nightmare
+                        radar = False
                         if nightmare:
                             enemies["The_guy"]["AI"] = 100
                             enemies["Face"]["AI"] = 100
@@ -271,8 +296,12 @@ while game_on:
                 SCREEN.blit(arrow_down,(710,450))
                 SCREEN.blit(arrow_up,(1510,250))
                 SCREEN.blit(arrow_down,(1510,450))
-            SCREEN.blit(pygame.font.Font.render(font,str(enemies["The_guy"]["AI"]),True,(255,255,255)),(480,704))
-            SCREEN.blit(pygame.font.Font.render(font,str(enemies["Face"]["AI"]),True,(255,255,255)),(1280,704))
+            if enemies["The_guy"]["AI"] == 20 and enemies["Face"]["AI"] == 15:
+                SCREEN.blit(pygame.font.Font.render(font,str(enemies["The_guy"]["AI"]),True,(255,20,20)),(480,704))
+                SCREEN.blit(pygame.font.Font.render(font,str(enemies["Face"]["AI"]),True,(255,20,20)),(1280,704))
+            else:
+                SCREEN.blit(pygame.font.Font.render(font,str(enemies["The_guy"]["AI"]),True,(255,255,255)),(480,704))
+                SCREEN.blit(pygame.font.Font.render(font,str(enemies["Face"]["AI"]),True,(255,255,255)),(1280,704))
         elif tutorial_step == 0 and not extra:
             SCREEN.blit(pygame.font.Font.render(font,f"Night {night}",True,(255,255,255)),(890,730))
             SCREEN.blit(start_img,(800,800))
@@ -281,8 +310,12 @@ while game_on:
             SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[0],True,(255,255,255)),(100,300))
         elif tutorial_step == 2:
             SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[1],True,(255,255,255)),(100,300))
-            SCREEN.blit(pygame.transform.scale(room_img,(605,270)),(1000,600))
+            SCREEN.blit(flashlight_tutorial_imgs[int(flash_frame)], (1000,600))
+            flash_frame += 1/3
+            if flash_frame >= 200:
+                flash_frame = 0
         elif tutorial_step == 3:
+            flash_frame = 0
             SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[2],True,(255,255,255)),(100,200))
             SCREEN.blit(pygame.transform.scale(CamPlan,(1095,810)),(500,300))
             pygame.draw.circle(SCREEN,(255,255,255),(500+807,300+310), 40,3)
@@ -329,6 +362,19 @@ while game_on:
     if enemies["The_guy"]["AI"] == 0:
         enemies["The_guy"]["room"] = None
 
+    if enemies["The_guy"]["AI"] == 20 and enemies["Face"]["AI"] == 15:
+        nightmare = False
+        radar = False
+        dark_mode = False
+        CamPlan = pygame.image.load("assets/IMAGE/plan of the hotel/CamerasLocust.png").convert_alpha()
+        CamPlan = pygame.transform.scale(CamPlan, (1460,1080)).convert_alpha()
+        hour = 2
+        EnemyMoveTimer = -300
+        enemies["The_guy"]["room"] = None
+        enemies["The_guy"]["AI"] = 0
+        enemies["Face"]["AI"] = 0
+        enemies["locust"]["AI"] = 1
+
     #Game loop
 
     while running:
@@ -350,35 +396,48 @@ while game_on:
             if event.type == pygame.MOUSEBUTTONDOWN and CamON:
                 mouse_pos = pygame.mouse.get_pos()
                 # if 364 <= mouse_pos[0] <= 544 and 323 <= mouse_pos[0] <= 411 and AudioLureTimer == 0:
-
-                if audio_lure_button_rect.collidepoint(mouse_pos) and AudioLureTimer == 0 and SelectedCam != "":
-                    AudioLureTimer = 200
-                    AudioLure_sfx.play()
-                    roomToMove = The_guy.AudioLure(enemies["The_guy"]['room'], enemies["The_guy"]['AI'], SelectedCam, LockedDoor)
-                    enemies["The_guy"]["room"] = roomToMove
-                if 365 <= mouse_pos[0] <= 545 and 443 <= mouse_pos[1] <= 531 and ScanTimer == 0 and not radar:
-                    pygame.mixer.Sound("assets/SOUND/scan.mp3").play()
-                    ScanDuration = ScanDurationMax
-                    ScanTimer = 900
-                if AudioLureTimer == 0:
-                    if 735 <= mouse_pos[0] <= 775 and 850 <= mouse_pos[1] <= 910 and SelectedCam != "C":
-                        SelectedCam = "C"
-                    if 737 <= mouse_pos[0] <= 777 and 650 <= mouse_pos[1] <= 710 and SelectedCam != "LH":
-                        SelectedCam = "LH"
-                    if 1400 <= mouse_pos[0] <= 1440 and 640 <= mouse_pos[1] <= 700 and SelectedCam != "BH":
-                        SelectedCam = "BH"
-                    if 1310 <= mouse_pos[0] <= 1350 and 710 <= mouse_pos[1] <= 770 and SelectedCam != "BR":
-                        SelectedCam = "BR"
-                    if 1305 <= mouse_pos[0] <= 1345 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "E":
-                        SelectedCam = "E"
-                    if 995 <= mouse_pos[0] <= 1035 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "DB":
-                        SelectedCam = "DB"
-                    if 937 <= mouse_pos[0] <= 977 and 428 <= mouse_pos[1] <= 488 and SelectedCam != "DA":
-                        SelectedCam = "DA"
-                    if 935 <= mouse_pos[0] <= 975 and 505 <= mouse_pos[1] <= 565 and SelectedCam != "A":
-                        SelectedCam = "A"
+                if enemies["locust"]["AI"] == 0:
+                    if audio_lure_button_rect.collidepoint(mouse_pos) and AudioLureTimer == 0 and SelectedCam != "":
+                        AudioLureTimer = 200
+                        AudioLure_sfx.play()
+                        roomToMove = The_guy.AudioLure(enemies["The_guy"]['room'], enemies["The_guy"]['AI'], SelectedCam, LockedDoor)
+                        enemies["The_guy"]["room"] = roomToMove
+                    if 365 <= mouse_pos[0] <= 545 and 443 <= mouse_pos[1] <= 531 and not radar:
+                        if ScanTimer == 0:
+                            pygame.mixer.Sound("assets/SOUND/scan.mp3").play()
+                            ScanDuration = ScanDurationMax
+                            ScanTimer = 900
+                        else:
+                            error.play()
+                    if AudioLureTimer == 0:
+                        if 735 <= mouse_pos[0] <= 775 and 850 <= mouse_pos[1] <= 910 and SelectedCam != "C":
+                            SelectedCam = "C"
+                        if 737 <= mouse_pos[0] <= 777 and 650 <= mouse_pos[1] <= 710 and SelectedCam != "LH":
+                            SelectedCam = "LH"
+                        if 1400 <= mouse_pos[0] <= 1440 and 640 <= mouse_pos[1] <= 700 and SelectedCam != "BH":
+                            SelectedCam = "BH"
+                        if 1310 <= mouse_pos[0] <= 1350 and 710 <= mouse_pos[1] <= 770 and SelectedCam != "BR":
+                            SelectedCam = "BR"
+                        if 1305 <= mouse_pos[0] <= 1345 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "E":
+                            SelectedCam = "E"
+                        if 995 <= mouse_pos[0] <= 1035 and 430 <= mouse_pos[1] <= 490 and SelectedCam != "DB":
+                            SelectedCam = "DB"
+                        if 937 <= mouse_pos[0] <= 977 and 428 <= mouse_pos[1] <= 488 and SelectedCam != "DA":
+                            SelectedCam = "DA"
+                        if 935 <= mouse_pos[0] <= 975 and 505 <= mouse_pos[1] <= 565 and SelectedCam != "A":
+                            SelectedCam = "A"
+                else:
+                    if audio_lure_button_rect.collidepoint(mouse_pos):
+                        pygame.mixer.Sound("assets/SOUND/AudioLure.mp3").play()
+                        if enemies["locust"]["room"] in ("LH","LoH"):
+                            enemies["locust"]["room"] = "DB"
+                            EnemyMoveTimer = 0
+                        else:
+                            Jumpscare = True
+                    if 365 <= mouse_pos[0] <= 545 and 443 <= mouse_pos[1] <= 531:
+                        error.play()
     # Door locking
-                if DoorTimer == 0:
+                if DoorTimer == 0 and enemies["locust"]["AI"] == 0:
                     if door_positions["DA"][0] <= mouse_pos[0] <= door_positions["DA"][0]+60 and door_positions["DA"][1] <= mouse_pos[1] <= door_positions["DA"][1]+22:
                         if LockedDoor == "DA":
                             LockedDoor = None
@@ -398,61 +457,65 @@ while game_on:
                         continue
                     sfx.MetalDoor("close")
                     DoorTimer = 200
-        if ScanDuration > 0 and not radar:
-            if ScanDuration % 60 < 30:
-                CamPlan = cam_room_cache.get(enemies["The_guy"]['room'], OriginalCamPlan)
-            else:
+        if enemies["locust"]["AI"] == 0:
+            if ScanDuration > 0 and not radar:
+                if ScanDuration % 60 < 30:
+                    CamPlan = cam_room_cache.get(enemies["The_guy"]['room'], OriginalCamPlan)
+                else:
+                    CamPlan = OriginalCamPlan
+                ScanDuration -= 1
+            
+            if ScanDuration == 0 and not radar:
                 CamPlan = OriginalCamPlan
-            ScanDuration -= 1
-        
-        if ScanDuration == 0 and not radar:
-            CamPlan = OriginalCamPlan
-
-        if radar:
-            if pygame.time.get_ticks() % 1000 < 500:
-                CamPlan = cam_room_cache.get(enemies["The_guy"]['room'], OriginalCamPlan)
-            else:
-                CamPlan = OriginalCamPlan
+            if radar:
+                if pygame.time.get_ticks() % 1000 < 500:
+                    CamPlan = cam_room_cache.get(enemies["The_guy"]['room'], OriginalCamPlan)
+                else:
+                    CamPlan = OriginalCamPlan
         
             
                 
-    # Exit button         
-                        
+    # Exit button               
         key = pygame.key.get_pressed()
-        # if key[pygame.K_ESCAPE]:
-        #     win = False
-        #     running = False
     # Flashlight
         if key[pygame.K_q] and not CamON:
             flashlight_toogle = True
             
 
     # Enemy movement
-        EnemyMoveTimer += 1
-        if EnemyMoveTimer >= 300:
-            EnemyMoveTimer = 0
-            for enemy in enemies:
-                current_room = enemies[enemy]["room"]
-                AI = enemies[enemy]["AI"]
-                new_room = The_guy.move(current_room, AI, LockedDoor, nightmare)
-                enemies[enemy]["room"] = new_room
-        if enemies["The_guy"]["room"] == "You" and AttackTimer < 600:
-            AttackTimer += 1
-        if AttackTimer >= 600:
-            if CamON:
-                animating = True
-                anim_frame = 0
-                anim_timer = 0
-                turning_on = not CamON
-                Jumpscare = True
-                CamON = False
-            if flashlight_toogle:
-                Jumpscare = True
-                flashlight_toogle = False
-        if enemies["The_guy"]["room"] == "You" and CamON:
-            room_img = the_guy_room
-        if enemies["The_guy"]["room"] != "You" and room_img == the_guy_room:
-            room_img = accurate_room_img
+        if enemies["locust"]["AI"] == 0:
+            EnemyMoveTimer += 1
+            if EnemyMoveTimer >= 300:
+                EnemyMoveTimer = 0
+                for enemy in enemies:
+                    current_room = enemies[enemy]["room"]
+                    AI = enemies[enemy]["AI"]
+                    new_room = The_guy.move(current_room, AI, LockedDoor, nightmare)
+                    enemies[enemy]["room"] = new_room
+            if enemies["The_guy"]["room"] == "You" and AttackTimer < 600:
+                AttackTimer += 1
+            if AttackTimer >= 600:
+                if CamON:
+                    animating = True
+                    anim_frame = 0
+                    anim_timer = 0
+                    turning_on = not CamON
+                    Jumpscare = True
+                    CamON = False
+                if flashlight_toogle:
+                    Jumpscare = True
+                    flashlight_toogle = False
+            if enemies["The_guy"]["room"] == "You" and CamON:
+                room_img = the_guy_room
+            if enemies["The_guy"]["room"] != "You" and room_img == the_guy_room:
+                room_img = accurate_room_img
+        else:
+            EnemyMoveTimer += 1
+            if EnemyMoveTimer >= 130 if hour < 6 else 80:
+                EnemyMoveTimer = 0
+                enemies["locust"]["room"] = locust.move(enemies["locust"]["room"],CamON)
+                if locust.attack >= 3:
+                    Jumpscare = True
 
 
     # Time and hour system
@@ -472,7 +535,6 @@ while game_on:
         if hour == 7 and (current_time - last_hour_time) // 1000 == 37 and last7one == 0:
             last7.play()
             last7one += 1
-
     # Camera movement
         if not CamON and not animating:
             if key[pygame.K_a]:
@@ -499,11 +561,17 @@ while game_on:
         if animating:
             if turning_on:
                 SCREEN.blit(monitor_imgs[anim_frame], (-40, 0))
+                if enemies["locust"]["room"] == "breath" and enemies["locust"]["AI"] == 1:
+                    enemies["locust"]["room"] = "DB"
+                    EnemyMoveTimer = 0
             else:
                 SCREEN.blit(room_img, (CamX, 0))
                 SCREEN.blit(monitor_imgs[4 - anim_frame], (-40, 0))
-        elif CamON:             #Camera screen render
-        
+                if enemies["locust"]["room"] == "camera_static" and enemies["locust"]["AI"] == 1:
+                    enemies["locust"]["room"] = "DB"
+                    EnemyMoveTimer = 0
+        elif CamON:             
+            #Camera screen render
             SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
             CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
 
@@ -524,7 +592,11 @@ while game_on:
                         pygame.draw.rect(SCREEN, (100, 100, 100), (355 + i*36 + i/3, 543, 18, 18))
             TIME = pygame.font.Font.render(font, display_time, True, (255, 255, 255))
             SCREEN.blit(TIME, (80, 75))
+            if enemies["locust"]["room"] == "camera_static" and enemies["locust"]["AI"] == 1:
+                SCREEN.blit(locust_camera,(410,-10))
+                error_channel.play(locust.locust_sfx[1])
             pygame.display.update()
+
         else:                   #Room screen render
             SCREEN.blit(room_img, (CamX, 0))
             if enemies["Face"]["alpha"] > 30:
@@ -534,9 +606,22 @@ while game_on:
                 SCREEN.blit(flashlight_img,(460,40))
             if enemies["Face"]["alpha"] >= 255:
                 Jumpscare = True
+            if enemies["locust"]["room"] == "breath" and enemies["locust"]["AI"] == 1:
+                SCREEN.blit(room_locust,(890+CamX,120))
         sfx.flashlight(flashlight_toogle)
-            
         pygame.display.update()
+        if enemies["locust"]["AI"] == 1 and enemies["locust"]["room"] != "camera_static":
+            error_channel.stop()
+        if flashlight_toogle and enemies["locust"]["AI"] == 1:
+            if enemies["locust"]["room"] == "breath":
+                Jumpscare = True
+            elif enemies["locust"]["room"] == "doorL" and CamX > -200:
+                enemies["locust"]["room"] = "DB"
+                EnemyMoveTimer = 0
+            elif enemies["locust"]["room"] == "doorR" and CamX < -300:
+                enemies["locust"]["room"] = "DB"
+                EnemyMoveTimer = 0
+                
 
     # Jumpscare
 
@@ -545,17 +630,19 @@ while game_on:
             if enemies["Face"]["alpha"] >= 255:
                 SCREEN.blit(pygame.transform.scale(pygame.image.load("assets/IMAGE/RoomDark.png"),(2420,1080)),(CamX,0))
                 SCREEN.blit(face_jumpscare,(300,0))
+            elif enemies["locust"]["AI"] == 1:
+                SCREEN.blit((locust_camera),(410,-10))
             else:
                 SCREEN.blit(The_guy_jumpscare, (0, 0))
             Jumpscare = False
             pygame.mixer.stop()
             jumpscareSFX.play()
             pygame.display.update()
-            pygame.time.wait(2300)
+            pygame.time.wait(2000 if enemies["locust"]["AI"] == 0 else 1000)
             pygame.mixer.stop()
             SCREEN.blit(Blood, (0, 0))
             pygame.display.update()
-            pygame.time.wait(4000)
+            pygame.time.wait(3800)
             win = False
             running = False
             menu = True
@@ -602,15 +689,18 @@ while game_on:
             else:
                 progress.write(f"Extras\n{extras_unlocked}\n")
             if extras_unlocked == "True" and nightmare == True and nightmare_beaten == "False":
-                progress.write("Nightmare\nTrue")
+                progress.write("Nightmare\nTrue\n")
             else:
                 progress.write(f"Nightmare\n{nightmare_beaten}")
+            if enemies["locust"]["AI"] == 1:
+                progress.write(f"deaf mode:\nTrue")
+            else:
+                progress.write(f"deaf mode:\n{deaf_mode}")
             
         menu = True
     if game_on:
         SCREEN.fill((0,0,0))
         pygame.display.update()
-        pygame.time.wait(2000)
         running = True
             
 pygame.quit()
