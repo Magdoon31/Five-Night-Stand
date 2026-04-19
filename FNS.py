@@ -119,7 +119,7 @@ while game_on:
     locust_camera = pygame.image.load("assets/IMAGE/locust_cameras.png").convert_alpha()
     locust_camera = pygame.transform.scale(locust_camera,(1100,1100)).convert_alpha()
     room_locust = pygame.transform.scale(pygame.image.load("assets/IMAGE/locust_room.png"),(350,700)).convert_alpha()
-
+    night = 1
 
     font = pygame.font.Font("assets/FONTS/witchwoode/Witchwoode-Regular.otf", 52)
     menu = True
@@ -366,10 +366,7 @@ while game_on:
         if dt > 100:
             print("Lag spike:", dt, "ms")
 
-    pygame.mixer.stop()
-    if game_on:
-        gameMusic = pygame.mixer.Sound("assets/MUSIC/Game1.mp3")
-        gameMusic.play(-1)  
+    
 
 
     if enemies["The_guy"]["AI"] == 0:
@@ -388,7 +385,33 @@ while game_on:
         enemies["Face"]["AI"] = 0
         enemies["locust"]["AI"] = 1
 
+    display_night = ""
+    if night in (1,2,3,4,5) and extras_unlocked == "False":
+        display_night = f"NIGHT {night}"
+    elif extras_unlocked == "True" and not nightmare and enemies["locust"]["AI"] == 0:
+        display_night = "CUSTOM NIGHT"
+    elif nightmare:
+        display_night = "NIGHT 6"
+    elif enemies["locust"]["AI"] == 1:
+        display_night = "########"
+    else:
+        display_night = "?"
+    pygame.mixer.stop()
+    if running:
+        for i in range(1,300):
+            if i == 1:
+                pygame.mixer.Sound("assets/SOUND/next_night.mp3").play()
+            SCREEN.fill((0,0,0))
+            SCREEN.blit(pygame.font.Font.render(font, display_night, True, (255,255,255) if not enemies["locust"]["AI"] == 1 else (210,20,20)), (860,500))
+            pygame.display.update()
+            clock.tick(60)
+
     #Game loop
+
+    pygame.mixer.stop()
+    if game_on:
+        gameMusic = pygame.mixer.Sound("assets/MUSIC/Game1.mp3")
+        gameMusic.play(-1)  
 
     while running:
         flashlight_toogle = False
@@ -541,7 +564,7 @@ while game_on:
     # Time and hour system
 
         current_time = pygame.time.get_ticks()
-        if (current_time - last_hour_time) // 1000 >= 45:
+        if (current_time - last_hour_time) // 1000 >= 45 if enemies["locust"]["AI"] == 0 else 50:
             hour += 1
             last_hour_time = current_time
         if hour in (0,1,2):
@@ -553,7 +576,7 @@ while game_on:
             running = False
             hour = 0
         if hour == 7 and (current_time - last_hour_time) // 1000 == 37 and last7one == 0:
-            last7.play()
+            pygame.mixer.Channel(4).play(pygame.mixer.Sound("assets/SOUND/last 7 sec.mp3"))
             last7one += 1
     # Camera movement
         if not CamON and not animating:
@@ -644,8 +667,7 @@ while game_on:
             elif enemies["locust"]["room"] == "doorR" and CamX < -300:
                 enemies["locust"]["room"] = "DB"
                 locust.attack = 0
-                EnemyMoveTimer = 0
-        print(enemies["locust"]["room"],locust.attack, EnemyMoveTimer)        
+                EnemyMoveTimer = 0     
 
     # Jumpscare
 
