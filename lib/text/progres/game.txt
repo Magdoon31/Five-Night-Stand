@@ -1,0 +1,8 @@
+Night
+1
+Extras
+False
+Nightmare
+False
+deaf_mode:
+False

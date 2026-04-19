@@ -127,19 +127,37 @@ while game_on:
     try:
         with open("lib/text/progres/game.txt", "r+") as progress:
             progress_data = progress.read().splitlines()
-            if progress_data == []:
+        try:
+            night = int(progress_data[1])
+            extras_unlocked = progress_data[3]
+            nightmare_beaten = progress_data[5]
+            deaf_mode = progress_data[7]
+        except IndexError or ValueError:
+            with open("lib/text/progres/game.txt", "w+") as progress:
+                progress.write("Night\n1\n")
+                progress.write("Extras\nFalse\n")
+                progress.write("Nightmare\nFalse\n")
+                progress.write("deaf_mode:\nFalse")
+        if night not in (1,2,3,4,5) or extras_unlocked not in (True,False) or nightmare_beaten not in (True,False) or deaf_mode not in (True,False):
+            with open("lib/text/progres/game.txt", "w+") as progress:
                 progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
                 progress.write("Nightmare\nFalse\n")
                 progress.write("deaf_mode:\nFalse")
     except FileNotFoundError:
         with open("lib/text/progres/game.txt", "w+") as progress:
-            progress_data = progress.read().splitlines()
-            if progress_data == []:
-                progress.write("Night\n1\n")
-                progress.write("Extras\nFalse\n")
-                progress.write("Nightmare\nFalse\n")
-                progress.write("deaf_mode:\nFalse")
+            progress.write("Night\n1\n")
+            progress.write("Extras\nFalse\n")
+            progress.write("Nightmare\nFalse\n")
+            progress.write("deaf_mode:\nFalse")
+    with open("lib/text/progres/game.txt", "r+") as progress:
+        progress_data = progress.read().splitlines()
+    night = int(progress_data[1])
+    extras_unlocked = progress_data[3]
+    nightmare_beaten = progress_data[5]
+    deaf_mode = progress_data[7]
+
+    
 
     start_img = pygame.image.load("assets/IMAGE/Start.png").convert_alpha()
     start_img = pygame.transform.scale(start_img, (320,120))
@@ -181,12 +199,6 @@ while game_on:
 
 
     stars = 0
-    with open("lib/text/progres/game.txt", "r+") as progress:
-        progress_data = progress.read().splitlines()
-        night = int(progress_data[1])
-        extras_unlocked = progress_data[3]
-        nightmare_beaten = progress_data[5]
-        deaf_mode = progress_data[7]
     if night > 5:
         night = 5
     if extras_unlocked == "True":
