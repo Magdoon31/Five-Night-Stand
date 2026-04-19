@@ -127,6 +127,7 @@ while game_on:
     try:
         with open("lib/text/progres/game.txt", "r+") as progress:
             progress_data = progress.read().splitlines()
+            print(progress_data)
         try:
             night = int(progress_data[1])
             extras_unlocked = progress_data[3]
@@ -443,6 +444,7 @@ while game_on:
                         pygame.mixer.Channel(1).play(pygame.mixer.Sound("assets/SOUND/AudioLure.mp3"))
                         if enemies["locust"]["room"] in ("LH","LoH"):
                             enemies["locust"]["room"] = "DB"
+                            locust.attack = 0
                             EnemyMoveTimer = 0
                         else:
                             Jumpscare = True
@@ -523,7 +525,13 @@ while game_on:
                 room_img = accurate_room_img
         else:
             EnemyMoveTimer += 1
-            if EnemyMoveTimer >= 130 if hour < 6 else 80:
+            if hour < 6 :
+                if EnemyMoveTimer >= 130  :
+                    EnemyMoveTimer = 0
+                    enemies["locust"]["room"] = locust.move(enemies["locust"]["room"],CamON)
+                    if locust.attack >= 3:
+                        Jumpscare = True
+            elif EnemyMoveTimer >= 80:
                 EnemyMoveTimer = 0
                 enemies["locust"]["room"] = locust.move(enemies["locust"]["room"],CamON)
                 if locust.attack >= 3:
@@ -575,19 +583,21 @@ while game_on:
                 SCREEN.blit(monitor_imgs[anim_frame], (-40, 0))
                 if enemies["locust"]["room"] == "breath" and enemies["locust"]["AI"] == 1:
                     enemies["locust"]["room"] = "DB"
+                    locust.attack = 0
                     EnemyMoveTimer = 0
+                if enemies["locust"]["room"] in("doorL","doorR"):
+                    Jumpscare = True
             else:
                 SCREEN.blit(room_img, (CamX, 0))
                 SCREEN.blit(monitor_imgs[4 - anim_frame], (-40, 0))
                 if enemies["locust"]["room"] == "camera_static" and enemies["locust"]["AI"] == 1:
                     enemies["locust"]["room"] = "DB"
+                    locust.attack = 0
                     EnemyMoveTimer = 0
         elif CamON:             
             #Camera screen render
             SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
             CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
-
-    # Audio Lure
             if LockedDoor in door_positions:
                 pos = door_positions[LockedDoor]
                 pygame.draw.rect(SCREEN, (255,255,255), (pos[0],pos[1],59,22))
@@ -629,11 +639,13 @@ while game_on:
                 Jumpscare = True
             elif enemies["locust"]["room"] == "doorL" and CamX > -200:
                 enemies["locust"]["room"] = "DB"
+                locust.attack = 0
                 EnemyMoveTimer = 0
             elif enemies["locust"]["room"] == "doorR" and CamX < -300:
                 enemies["locust"]["room"] = "DB"
+                locust.attack = 0
                 EnemyMoveTimer = 0
-                
+        print(enemies["locust"]["room"],locust.attack, EnemyMoveTimer)        
 
     # Jumpscare
 
@@ -703,7 +715,7 @@ while game_on:
             if extras_unlocked == "True" and nightmare == True and nightmare_beaten == "False":
                 progress.write("Nightmare\nTrue\n")
             else:
-                progress.write(f"Nightmare\n{nightmare_beaten}")
+                progress.write(f"Nightmare\n{nightmare_beaten}\n")
             if enemies["locust"]["AI"] == 1:
                 progress.write(f"deaf mode:\nTrue")
             else:

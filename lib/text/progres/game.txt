@@ -4,5 +4,5 @@ Extras
 True
 Nightmare
 False
-deaf_mode:
-False
+deaf mode:
+True
