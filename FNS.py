@@ -440,7 +440,7 @@ while game_on:
                             SelectedCam = "A"
                 else:
                     if audio_lure_button_rect.collidepoint(mouse_pos):
-                        pygame.mixer.Sound("assets/SOUND/AudioLure.mp3").play()
+                        pygame.mixer.Channel(1).play(pygame.mixer.Sound("assets/SOUND/AudioLure.mp3"))
                         if enemies["locust"]["room"] in ("LH","LoH"):
                             enemies["locust"]["room"] = "DB"
                             EnemyMoveTimer = 0

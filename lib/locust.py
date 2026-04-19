@@ -27,10 +27,16 @@ def move(room,CamON):
         attack = 0
         rndsfx = random.randint(1,2)
         if random.random()>0.5:
-            locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
+            if random.random() < 0.2:
+                locust_channel.play(locust_sfx[2])
+            else:
+                locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
             return "DA"
         else:
-            locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
+            if random.random() < 0.2:
+                locust_channel.play(locust_sfx[9])
+            else:
+                locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
             return "UH"
     elif room == "DA":
         rnd = random.randint(1,3)
@@ -41,11 +47,8 @@ def move(room,CamON):
         elif rnd == 2:
             locust_channel.play(locust_sfx[5])
             return "doorL"
-        else:
-            if random.random() < 0.2:
-                locust_channel.play(locust_sfx[2])
-            else:
-                locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
+        else: 
+            locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
             return "DB"
     elif room == "LH":
         attack +=1
@@ -60,10 +63,7 @@ def move(room,CamON):
             locust_channel.play(locust_sfx[6])
             return "doorR"
         else:
-            if random.random() < 0.2:
-                locust_channel.play(locust_sfx[10])
-            else:
-                locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
+            locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
             return "DB"
     elif room == "LoH":
         attack +=1
