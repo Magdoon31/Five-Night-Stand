@@ -127,29 +127,24 @@ while game_on:
     try:
         with open("lib/text/progres/game.txt", "r+") as progress:
             progress_data = progress.read().splitlines()
-            print(progress_data)
         try:
             night = int(progress_data[1])
             extras_unlocked = progress_data[3]
             nightmare_beaten = progress_data[5]
             deaf_mode = progress_data[7]
-            print("okej")
         except IndexError or ValueError:
             with open("lib/text/progres/game.txt", "w+") as progress:
                 progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
                 progress.write("Nightmare\nFalse\n")
                 progress.write("deaf_mode:\nFalse")
-                print("nie okej")
         if night not in (1,2,3,4,5) or extras_unlocked not in ("True","False") or nightmare_beaten not in ("True","False") or deaf_mode not in ("True","False"):
             with open("lib/text/progres/game.txt", "w+") as progress:
                 progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
                 progress.write("Nightmare\nFalse\n")
                 progress.write("deaf_mode:\nFalse")
-            print("Złe dane")
     except FileNotFoundError:
-        print("nie ma pliku")
         with open("lib/text/progres/game.txt", "w+") as progress:
             progress.write("Night\n1\n")
             progress.write("Extras\nFalse\n")
