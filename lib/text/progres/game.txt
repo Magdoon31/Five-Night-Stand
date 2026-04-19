@@ -1,7 +1,7 @@
 Night
-1
+5
 Extras
-False
+True
 Nightmare
 False
 deaf_mode:
