@@ -190,7 +190,7 @@ while game_on:
     tutorial_step = 0
     tutorial_btn = pygame.image.load("assets/IMAGE/tutorial.png").convert_alpha()
     tutorial_btn = pygame.transform.scale(tutorial_btn, (280,70)).convert_alpha()
-    tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abaNdoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
+    tutorial_texts = ["Welcome to Five Night Stand! In this game, you wake up in an abandoned hotel.\nYour goal is to survive until 6 AM while avoiding enemies.",
                     "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
                     "On the camera view you can click on the rooms (diamonds)\nto select them and then use the audio lure to lure The Guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
                     "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Sca button... it's self-explanatory, it scans the whole place",
@@ -564,7 +564,7 @@ while game_on:
     # Time and hour system
 
         current_time = pygame.time.get_ticks()
-        if (current_time - last_hour_time) // 1000 >= 45 if enemies["locust"]["AI"] == 0 else 50:
+        if (current_time - last_hour_time) // 1000 >= 45:
             hour += 1
             last_hour_time = current_time
         if hour in (0,1,2):
