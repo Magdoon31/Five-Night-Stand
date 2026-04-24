@@ -138,25 +138,29 @@ while game_on:
                 progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
                 progress.write("Nightmare\nFalse\n")
-                progress.write("deaf_mode:\nFalse")
+                progress.write("deaf_mode:\nFalse\n")
+                progress.write("2015_unlocked:\nFalse")
         if night not in (1,2,3,4,5) or extras_unlocked not in ("True","False") or nightmare_beaten not in ("True","False") or deaf_mode not in ("True","False"):
             with open("lib/text/progres/game.txt", "w+") as progress:
                 progress.write("Night\n1\n")
                 progress.write("Extras\nFalse\n")
                 progress.write("Nightmare\nFalse\n")
-                progress.write("deaf_mode:\nFalse")
+                progress.write("deaf_mode:\nFalse\n")
+                progress.write("2015_unlocked:\nFalse")
     except FileNotFoundError:
         with open("lib/text/progres/game.txt", "w+") as progress:
             progress.write("Night\n1\n")
             progress.write("Extras\nFalse\n")
             progress.write("Nightmare\nFalse\n")
-            progress.write("deaf_mode:\nFalse")
+            progress.write("deaf_mode:\nFalse\n")
+            progress.write("2015_unlocked:\nFalse")
     with open("lib/text/progres/game.txt", "r+") as progress:
         progress_data = progress.read().splitlines()
     night = int(progress_data[1])
     extras_unlocked = progress_data[3]
     nightmare_beaten = progress_data[5]
     deaf_mode = progress_data[7]
+    deaf_unlocked = progress_data[9]
 
     
 
@@ -194,7 +198,10 @@ while game_on:
                     "You can move the view left and right by pressing A and D\nYou can check the cameras by pressing S.\nAlso you can use the flashlight by pressing Q,\nit can scare the enemies away, but not always.",
                     "On the camera view you can click on the rooms (diamonds)\nto select them and then use the audio lure to lure The Guy to that room.\nFirst Audio lure works 100 percent of the time, but after each use,\nthe number goes down. Also, lure isn't that loud, so use it closely to the guy",
                     "You can lock one door at a time by clicking on the door on the camera view.\nAnd... the Sca button... it's self-explanatory, it scans the whole place",
-                    "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon"]
+                    "Hope you enjoy the game! If you have any questions\nsuggestions or found a bug, contact me on discord: magdoon",
+                    "So... you found this part.   That already says more than you think.   \nMost people never look this far. But you are curious,      in an irritating way.\n   ...     So...\n      The LOCUST.\nThat thing from 20/15 mode. It begins in DB. Then it starts pacing back and forth.\nLike it's comming for you.",
+                    "When it gets close, i mean...  when it slowly aproches ur door \n   ONLY then use the Audio Lure. Never before.\nUse it too early, and it gets curious.",
+                    "    If it reaches the door, shine your flashlight at that side.\n  That usually keeps it away.\nBut never forget the cameras. The moment you stop watching,\nit starts watching back."]
     tutorial_font = pygame.font.Font("assets/FONTS/Kinnora.otf", 46)
 
 
@@ -232,11 +239,15 @@ while game_on:
     # Menu loop
 
     menuMusic = pygame.mixer.Sound("assets/MUSIC/menu1.mp3")
-    menuMusic.play(-1)  
+    menu_music_channel = pygame.mixer.Channel(6)
+    menu_music_active = False
 
 
 
     while menu:
+        if not menu_music_active and tutorial_step == 0:
+            menu_music_channel.play(menuMusic,-1)
+            menu_music_active = True
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu = False
@@ -273,12 +284,12 @@ while game_on:
                                 enemies["Face"]["AI"] = 0
                     if 1300 <= mouse_pos[0] <= 1580 and 100 <= mouse_pos[1] <= 180:
                         tutorial_step += 1
-                elif tutorial_step > 0 and tutorial_step < 5:
+                elif tutorial_step > 0:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         tutorial_step += 1
-                elif tutorial_step == 5:
-                    tutorial_step = 0
-                else:
+                        if 9> tutorial_step >= 6 and deaf_unlocked == "True":
+                            pygame.mixer.Sound("assets/SOUND/secret.mp3").play()
+                elif extra:
                     if 300 <= mouse_pos[0] <= 520 and 100 <= mouse_pos[1] <= 180:
                         extra = False
                     if 600 <= mouse_pos[0] <= 890 and 385 <= mouse_pos[1] <= 440:
@@ -294,8 +305,12 @@ while game_on:
                     if 600 <= mouse_pos[0] <= 890 and 700 <= mouse_pos[1] <= 750:
                         click.play()
                         dark_mode = not dark_mode
+                if (tutorial_step > 5 and deaf_unlocked == "False") or tutorial_step > 8:
+                    tutorial_step = 0
+                    menu_music_active = False
         SCREEN.blit(CamBackground[CamBackground_frame], (0, 0))
         CamBackground_frame = (CamBackground_frame + 1) % len(CamBackground)
+       
         if not extra and tutorial_step == 0 and extras_unlocked == "True":
             for i in range(stars):
                 SCREEN.blit(progress_star,(0 + i*100, 980))
@@ -350,6 +365,16 @@ while game_on:
             pygame.draw.line(SCREEN,(255,40,40),(590,630),(590-27,630-10),3)
         elif tutorial_step == 5:
             SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[4],True,(255,255,255)),(100,300))
+        elif tutorial_step == 6:
+            menu_music_channel.stop()
+            SCREEN.fill((0,0,0))
+            SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[5],True,(250,180,180)),(200,350))
+        elif tutorial_step == 7:
+            SCREEN.fill((0,0,0))
+            SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[6],True,(250,180,180)),(200,350))
+        elif tutorial_step == 8:
+            SCREEN.fill((0,0,0))
+            SCREEN.blit(pygame.font.Font.render(tutorial_font,tutorial_texts[7],True,(250,180,180)),(210,350))
         elif extra:
             for i in range(stars):
                 SCREEN.blit(progress_star,(0 + i*100, 980))
@@ -739,11 +764,23 @@ while game_on:
             else:
                 progress.write(f"Nightmare\n{nightmare_beaten}\n")
             if enemies["locust"]["AI"] == 1:
-                progress.write(f"deaf mode:\nTrue")
+                progress.write(f"deaf mode:\nTrue\n")
             else:
-                progress.write(f"deaf mode:\n{deaf_mode}")
-            
+                progress.write(f"deaf mode:\n{deaf_mode}\n")
+            progress.write(f"2015_unlocked\n{deaf_unlocked}")
+    else:
+        with open("lib/text/progres/game.txt", "w") as progress:
+            progress.write(f"Night\n{night}\n")
+            progress.write(f"Extras\n{extras_unlocked}\n")
+            progress.write(f"Nightmare\n{nightmare_beaten}\n")
+            progress.write(f"deaf mode:\n{deaf_mode}\n")
+            if enemies["locust"]["AI"] == 1 or deaf_unlocked == "True":
+                progress.write(f"2015_unlocked:\nTrue")
+            else:
+                progress.write(f"2015_unlocked:\nFalse")
+
         menu = True
+    
     if game_on:
         SCREEN.fill((0,0,0))
         pygame.display.update()

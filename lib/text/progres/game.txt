@@ -1,8 +1,10 @@
 Night
-5
+1
 Extras
-True
+False
 Nightmare
 False
-deaf_mode:
+deaf mode:
+False
+2015_unlocked:
 False
