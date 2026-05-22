@@ -2,6 +2,7 @@ import pygame, random
 import assets.AI.The_guy as The_guy
 import assets.SOUND.SFXManager as sfx
 import lib.locust as locust
+from minigames.minigame1 import minigame
 
 pygame.init()
 pygame.mixer.init()
@@ -768,6 +769,10 @@ while game_on:
             else:
                 progress.write(f"deaf mode:\n{deaf_mode}\n")
             progress.write(f"2015_unlocked\n{deaf_unlocked}")
+        if night == 2:
+            minigame(1)
+        elif night == 4:
+            minigame(2)
     else:
         with open("lib/text/progres/game.txt", "w") as progress:
             progress.write(f"Night\n{night}\n")
