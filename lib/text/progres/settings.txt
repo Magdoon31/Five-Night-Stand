@@ -1,0 +1,8 @@
+music_volume
+1.0
+sfx_volume
+1.0
+al_counter
+0
+show_timer:
+0

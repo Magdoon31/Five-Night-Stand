@@ -4,7 +4,7 @@ Extras
 False
 Nightmare
 False
-deaf mode:
+deaf_mode_beaten:
 False
-2015_unlocked:
+deaf_unlocked:
 False

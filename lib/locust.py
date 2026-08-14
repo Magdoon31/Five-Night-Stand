@@ -1,19 +1,7 @@
 import pygame,random
-
+from lib import sfx_manager as sfx
 attack = 0
-locust_sfx = []
-locust_channel = pygame.mixer.Channel(3)
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/breath.mp3")) #0
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/camera_static.mp3")) #1
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/small_footsteps.mp3")) #2
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/deepfootstepsleft.mp3")) #3
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/deepfootstepsright.mp3")) #4
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/doorcreak_left.mp3")) #5
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/doorcreak_right.mp3"))#6
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/fastrunleft.mp3"))#7
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/fastrunright.mp3"))#8
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/small_footsteps2.mp3"))#9
-locust_sfx.append(pygame.mixer.Sound("assets/SOUND/locust/small_footsteps3.mp3"))#10
+
 
 def move(room,CamON):
     global attack
@@ -28,27 +16,27 @@ def move(room,CamON):
         rndsfx = random.randint(1,2)
         if random.random()>0.5:
             if random.random() < 0.2:
-                locust_channel.play(locust_sfx[2])
+                sfx.play("small_footsteps")
             else:
-                locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
+                sfx.play("deep_footsteps_left" if rndsfx == 1 else "fast_run_left")
             return "DA"
         else:
             if random.random() < 0.2:
-                locust_channel.play(locust_sfx[9])
+                sfx.play("small_footsteps2")
             else:
-                locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
+                sfx.play("deep_footsteps_right" if rndsfx == 1 else "fast_run_right")
             return "UH"
     elif room == "DA":
         rnd = random.randint(1,3)
         rndsfx = random.randint(1,2)
         if rnd == 1:
-            locust_channel.play(locust_sfx[2 if rndsfx == 1 else 9])
+            sfx.play("small_footsteps" if rndsfx == 1 else "small_footsteps2")
             return "LH"
         elif rnd == 2:
-            locust_channel.play(locust_sfx[5])
+            sfx.play("door_creak_left")
             return "doorL"
         else: 
-            locust_channel.play(locust_sfx[4 if rndsfx == 1 else 8])
+            sfx.play("deep_footsteps_right" if rndsfx == 1 else "fast_run_right")
             return "DB"
     elif room == "LH":
         attack +=1
@@ -57,13 +45,13 @@ def move(room,CamON):
         rndsfx = random.randint(1,2)
         rnd = random.randint(1,3)
         if rnd == 1:
-            locust_channel.play(locust_sfx[9 if rndsfx == 1 else 10])
+            sfx.play("small_footsteps2" if rndsfx == 1 else "small_footsteps3")
             return "LoH"
         elif rnd == 2:
-            locust_channel.play(locust_sfx[6])
+            sfx.play("door_creak_right")
             return "doorR"
         else:
-            locust_channel.play(locust_sfx[3 if rndsfx == 1 else 7])
+            sfx.play("deep_footsteps_left" if rndsfx == 1 else "fast_run_left")
             return "DB"
     elif room == "LoH":
         attack +=1
