@@ -634,6 +634,7 @@ while game_on:
         nightmare = False
         radar = False
         dark_mode = False
+        battery = False
         CamPlan = pygame.image.load("assets/IMAGE/plan of the hotel/CamerasLocust.png").convert_alpha()
         CamPlan = pygame.transform.scale(CamPlan, (width*0.76,height)).convert_alpha()
         hour = 2
