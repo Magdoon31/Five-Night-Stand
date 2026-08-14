@@ -1,8 +1,8 @@
 music_volume
-0.7583333333333333
+1.0
 sfx_volume
-0.8229166666666666
+1.0
 al_counter
-1
+0
 show_timer:
-1
+0
