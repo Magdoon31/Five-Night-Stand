@@ -94,9 +94,8 @@ def AudioLure(room, AI, AudioLureRoom, LockedDoor, Nightmare):
                     return room
             elif room == "B" and AudioLureRoom == "LH":
                 return room
-            elif Nightmare and room == "BH" and AudioLureRoom == "BR" and LockedDoor == "E":
-                sfx.play("metal_door_bang")
-                return room
+            elif Nightmare and room == "BH" and AudioLureRoom == "BR":
+                return "E"
             elif Nightmare and room == "DA" and LockedDoor == "DA":
                 sfx.play("metal_door_bang")
                 return room
