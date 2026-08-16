@@ -152,7 +152,7 @@ def minigame(nr):
         "step" : pygame.mixer.Sound("minigames/sfx/Step.ogg"),
         "house": pygame.mixer.Sound("minigames/sfx/house_ambience.mp3"),
         "house_chase": pygame.mixer.Sound("minigames/sfx/house_intense.mp3"),
-        "ending" : pygame.mixer.Sound("minigames/sfx/ending_music.mp3").set_volume(0.75)
+        "ending" : pygame.mixer.Sound("minigames/sfx/ending_music.mp3")
     }
     # Glitch SFX - sterowanie głośnością zależnie od tego jak gracz "podchodzi" do góry.
     glitch_sound = pygame.mixer.Sound("minigames/sfx/glitch.mp3")
